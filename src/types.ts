@@ -19,7 +19,6 @@ export interface CsvQualityParams {
 
 export interface GeoJsonParams {
   geojson_url: string;
-  target_epsg: string;
   category_column: string;
   output_name: string;
 }
