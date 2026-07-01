@@ -30,7 +30,13 @@ export async function triggerWorkflow(id: WorkflowId, params: object): Promise<T
     throw new Error(`VITE_FLOW_TRIGGER_URL_${id} is not a valid URL: "${url}"`);
   }
 
-  const res = await fetch(url, {
+  // In dev the Vite proxy strips CORS by forwarding same-origin to api.flow.reearth.io
+  const fetchUrl =
+    import.meta.env.DEV && url.includes('api.flow.reearth.io')
+      ? '/flow-api' + new URL(url).pathname
+      : url;
+
+  const res = await fetch(fetchUrl, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
