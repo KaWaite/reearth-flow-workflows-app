@@ -1,18 +1,24 @@
-import type { TriggerParams, TriggerResponse } from '../types';
+import type { TriggerResponse, WorkflowId } from '../types';
 
-const TRIGGER_URL = import.meta.env.VITE_FLOW_TRIGGER_URL as string | undefined;
+const TRIGGER_URLS: Record<WorkflowId, string | undefined> = {
+  1: import.meta.env.VITE_FLOW_TRIGGER_URL_1 as string | undefined,
+  2: import.meta.env.VITE_FLOW_TRIGGER_URL_2 as string | undefined,
+  3: import.meta.env.VITE_FLOW_TRIGGER_URL_3 as string | undefined,
+};
+
 const API_KEY = import.meta.env.VITE_FLOW_API_KEY as string | undefined;
 
-export function isMisconfigured(): boolean {
-  return !TRIGGER_URL || !API_KEY;
+export function isWorkflowConfigured(id: WorkflowId): boolean {
+  return !!(TRIGGER_URLS[id] && API_KEY);
 }
 
-export async function triggerWorkflow(params: TriggerParams): Promise<TriggerResponse> {
-  if (!TRIGGER_URL || !API_KEY) {
-    throw new Error('VITE_FLOW_TRIGGER_URL and VITE_FLOW_API_KEY must be set.');
+export async function triggerWorkflow(id: WorkflowId, params: object): Promise<TriggerResponse> {
+  const url = TRIGGER_URLS[id];
+  if (!url || !API_KEY) {
+    throw new Error(`Workflow ${id} is not configured. Set VITE_FLOW_TRIGGER_URL_${id} and VITE_FLOW_API_KEY.`);
   }
 
-  const res = await fetch(TRIGGER_URL, {
+  const res = await fetch(url, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
