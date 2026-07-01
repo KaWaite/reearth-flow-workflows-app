@@ -42,7 +42,7 @@ export async function triggerWorkflow(id: WorkflowId, params: object): Promise<T
       'Content-Type': 'application/json',
       Authorization: `Bearer ${API_KEY}`,
     },
-    body: JSON.stringify(params),
+    body: JSON.stringify({ with: params }),
   });
 
   if (!res.ok) {
