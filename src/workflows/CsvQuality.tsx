@@ -9,6 +9,12 @@ const DEFAULTS: CsvQualityParams = {
   output_prefix: 'output',
 };
 
+const EXAMPLE: CsvQualityParams = {
+  csv_url: 'https://api.flow.reearth.io/assets/01kwdqhya38b2g4r2ywfksy1gn.csv',
+  key_column: 'era',
+  output_prefix: 'output',
+};
+
 export function CsvQualityWorkflow() {
   const [params, setParams] = useState<CsvQualityParams>(DEFAULTS);
   const [jobState, setJobState] = useState<JobState>('idle');
@@ -42,6 +48,10 @@ export function CsvQualityWorkflow() {
     setParams(DEFAULTS);
   }
 
+  function handleFillExample() {
+    setParams(EXAMPLE);
+  }
+
   return (
     <>
       <section className="workflow-card">
@@ -70,7 +80,12 @@ export function CsvQualityWorkflow() {
 
       {jobState !== 'submitted' && (
         <form className="form-card" onSubmit={handleSubmit}>
-          <h2 className="form-title">Run Workflow</h2>
+          <div className="form-title-row">
+            <h2 className="form-title">Run Workflow</h2>
+            <button type="button" className="btn-example" onClick={handleFillExample}>
+              Fill example
+            </button>
+          </div>
 
           <div className="field">
             <label htmlFor="csv_url">CSV URL <span className="required">*</span></label>

@@ -201,11 +201,31 @@ strong { color: var(--text-strong); }
   gap: 20px;
 }
 
+.form-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
 .form-title {
   margin: 0;
   font-size: 15px;
   font-weight: 600;
   color: var(--text-strong);
+}
+
+.btn-example {
+  background: none;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 500;
+  padding: 3px 10px;
+  transition: color 0.15s, border-color 0.15s;
+
+  &:hover { color: var(--text); border-color: var(--text-muted); }
 }
 
 .field {
