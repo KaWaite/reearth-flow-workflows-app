@@ -4,8 +4,8 @@ import { JobStatus } from '../components/JobStatus';
 import type { CsvMergeParams, JobResult, JobState } from '../types';
 
 const DEFAULTS: CsvMergeParams = {
-  csv_url_1: '',
-  csv_url_2: '',
+  csv_path_1: '',
+  csv_path_2: '',
   dedup_key: '',
   output_prefix: 'merged',
 };
@@ -65,7 +65,7 @@ export function CsvMergeWorkflow() {
 
       {!configured && (
         <div className="alert alert-warn">
-          <strong>Not configured.</strong> Set <code>FLOW_TRIGGER_URL_3</code> (variable) and{' '}
+          <strong>Not configured.</strong> Set <code>FLOW_URL_CSV_MERGE</code> (variable) and{' '}
           <code>FLOW_API_KEY</code> (secret) in your GitHub repository settings, then redeploy.
           For local dev, add them to <code>.env.local</code>.
         </div>
@@ -76,14 +76,14 @@ export function CsvMergeWorkflow() {
           <h2 className="form-title">Run Workflow</h2>
 
           <div className="field">
-            <label htmlFor="csv_url_1">Source A URL <span className="required">*</span></label>
+            <label htmlFor="csv_path_1">Source A Path <span className="required">*</span></label>
             <input
-              id="csv_url_1"
-              name="csv_url_1"
-              type="url"
+              id="csv_path_1"
+              name="csv_path_1"
+              type="text"
               required
               placeholder="https://example.com/source-a.csv"
-              value={params.csv_url_1}
+              value={params.csv_path_1}
               onChange={handleChange}
               disabled={jobState === 'submitting'}
             />
@@ -91,14 +91,14 @@ export function CsvMergeWorkflow() {
           </div>
 
           <div className="field">
-            <label htmlFor="csv_url_2">Source B URL <span className="required">*</span></label>
+            <label htmlFor="csv_path_2">Source B Path <span className="required">*</span></label>
             <input
-              id="csv_url_2"
-              name="csv_url_2"
-              type="url"
+              id="csv_path_2"
+              name="csv_path_2"
+              type="text"
               required
               placeholder="https://example.com/source-b.csv"
-              value={params.csv_url_2}
+              value={params.csv_path_2}
               onChange={handleChange}
               disabled={jobState === 'submitting'}
             />

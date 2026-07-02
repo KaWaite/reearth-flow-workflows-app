@@ -34,13 +34,13 @@ jobs:
           # Shared API key — repository secret
           VITE_FLOW_API_KEY: ${{ secrets.FLOW_API_KEY }}
           # Per-workflow trigger URLs — repository variables
-          VITE_FLOW_TRIGGER_URL_1: ${{ vars.FLOW_TRIGGER_URL_1 }}
-          VITE_FLOW_TRIGGER_URL_2: ${{ vars.FLOW_TRIGGER_URL_2 }}
-          VITE_FLOW_TRIGGER_URL_3: ${{ vars.FLOW_TRIGGER_URL_3 }}
-          VITE_FLOW_TRIGGER_URL_4: ${{ vars.FLOW_TRIGGER_URL_4 }}
-          VITE_FLOW_TRIGGER_URL_5: ${{ vars.FLOW_TRIGGER_URL_5 }}
-          VITE_FLOW_TRIGGER_URL_6: ${{ vars.FLOW_TRIGGER_URL_6 }}
-          VITE_FLOW_TRIGGER_URL_7: ${{ vars.FLOW_TRIGGER_URL_7 }}
+          VITE_FLOW_URL_CSV_QUALITY: ${{ vars.FLOW_URL_CSV_QUALITY }}
+          VITE_FLOW_URL_GEOJSON: ${{ vars.FLOW_URL_GEOJSON }}
+          VITE_FLOW_URL_CSV_MERGE: ${{ vars.FLOW_URL_CSV_MERGE }}
+          VITE_FLOW_URL_COL_SELECT: ${{ vars.FLOW_URL_COL_SELECT }}
+          VITE_FLOW_URL_CSV_SPLIT: ${{ vars.FLOW_URL_CSV_SPLIT }}
+          VITE_FLOW_URL_CSV_JSON: ${{ vars.FLOW_URL_CSV_JSON }}
+          VITE_FLOW_URL_SPATIAL_FILTER: ${{ vars.FLOW_URL_SPATIAL_FILTER }}
 
       - uses: actions/upload-pages-artifact@v3
         with:

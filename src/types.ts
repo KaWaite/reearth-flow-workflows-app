@@ -12,43 +12,43 @@ export interface TriggerResponse {
 }
 
 export interface CsvQualityParams {
-  csv_url: string;
+  csv_path: string;
   key_column: string;
   output_prefix: string;
 }
 
 export interface GeoJsonParams {
-  geojson_url: string;
+  geojson_path: string;
   category_column: string;
   output_name: string;
 }
 
 export interface CsvMergeParams {
-  csv_url_1: string;
-  csv_url_2: string;
+  csv_path_1: string;
+  csv_path_2: string;
   dedup_key: string;
   output_prefix: string;
 }
 
 export interface ColumnSelectorParams {
-  csv_url: string;
+  csv_path: string;
   columns_to_remove: string;
   output_name: string;
 }
 
 export interface CsvSplitParams {
-  csv_url: string;
+  csv_path: string;
   category_column: string;
   output_prefix: string;
 }
 
 export interface CsvToJsonParams {
-  csv_url: string;
+  csv_path: string;
   output_name: string;
 }
 
 export interface SpatialFilterParams {
-  geojson_url: string;
+  geojson_path: string;
   min_area_m2: string;
   output_name: string;
 }

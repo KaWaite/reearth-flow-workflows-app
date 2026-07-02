@@ -4,7 +4,7 @@ import { JobStatus } from '../components/JobStatus';
 import type { CsvSplitParams, JobResult, JobState } from '../types';
 
 const DEFAULTS: CsvSplitParams = {
-  csv_url: '',
+  csv_path: '',
   category_column: '',
   output_prefix: 'split',
 };
@@ -61,7 +61,7 @@ export function CsvSplitWorkflow() {
 
       {!configured && (
         <div className="alert alert-warn">
-          <strong>Not configured.</strong> Set <code>FLOW_TRIGGER_URL_5</code> (variable) and{' '}
+          <strong>Not configured.</strong> Set <code>FLOW_URL_CSV_SPLIT</code> (variable) and{' '}
           <code>FLOW_API_KEY</code> (secret) in your GitHub repository settings, then redeploy.
           For local dev, add them to <code>.env.local</code>.
         </div>
@@ -72,18 +72,18 @@ export function CsvSplitWorkflow() {
           <h2 className="form-title">Run Workflow</h2>
 
           <div className="field">
-            <label htmlFor="csv_url">CSV URL <span className="required">*</span></label>
+            <label htmlFor="csv_path">CSV Path <span className="required">*</span></label>
             <input
-              id="csv_url"
-              name="csv_url"
-              type="url"
+              id="csv_path"
+              name="csv_path"
+              type="text"
               required
               placeholder="https://example.com/data.csv"
-              value={params.csv_url}
+              value={params.csv_path}
               onChange={handleChange}
               disabled={jobState === 'submitting'}
             />
-            <span className="field-hint">Publicly accessible URL to the input CSV file.</span>
+            <span className="field-hint">URL or path to the input CSV file.</span>
           </div>
 
           <div className="field">

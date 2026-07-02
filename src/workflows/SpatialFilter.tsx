@@ -4,7 +4,7 @@ import { JobStatus } from '../components/JobStatus';
 import type { SpatialFilterParams, JobResult, JobState } from '../types';
 
 const DEFAULTS: SpatialFilterParams = {
-  geojson_url: '',
+  geojson_path: '',
   min_area_m2: '',
   output_name: 'filtered',
 };
@@ -69,7 +69,7 @@ export function SpatialFilterWorkflow() {
 
       {!configured && (
         <div className="alert alert-warn">
-          <strong>Not configured.</strong> Set <code>FLOW_TRIGGER_URL_7</code> (variable) and{' '}
+          <strong>Not configured.</strong> Set <code>FLOW_URL_SPATIAL_FILTER</code> (variable) and{' '}
           <code>FLOW_API_KEY</code> (secret) in your GitHub repository settings, then redeploy.
           For local dev, add them to <code>.env.local</code>.
         </div>
@@ -80,14 +80,14 @@ export function SpatialFilterWorkflow() {
           <h2 className="form-title">Run Workflow</h2>
 
           <div className="field">
-            <label htmlFor="geojson_url">GeoJSON URL <span className="required">*</span></label>
+            <label htmlFor="geojson_path">GeoJSON Path <span className="required">*</span></label>
             <input
-              id="geojson_url"
-              name="geojson_url"
-              type="url"
+              id="geojson_path"
+              name="geojson_path"
+              type="text"
               required
               placeholder="https://example.com/polygons.geojson"
-              value={params.geojson_url}
+              value={params.geojson_path}
               onChange={handleChange}
               disabled={jobState === 'submitting'}
             />
