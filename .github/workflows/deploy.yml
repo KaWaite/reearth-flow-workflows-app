@@ -37,6 +37,10 @@ jobs:
           VITE_FLOW_TRIGGER_URL_1: ${{ vars.FLOW_TRIGGER_URL_1 }}
           VITE_FLOW_TRIGGER_URL_2: ${{ vars.FLOW_TRIGGER_URL_2 }}
           VITE_FLOW_TRIGGER_URL_3: ${{ vars.FLOW_TRIGGER_URL_3 }}
+          VITE_FLOW_TRIGGER_URL_4: ${{ vars.FLOW_TRIGGER_URL_4 }}
+          VITE_FLOW_TRIGGER_URL_5: ${{ vars.FLOW_TRIGGER_URL_5 }}
+          VITE_FLOW_TRIGGER_URL_6: ${{ vars.FLOW_TRIGGER_URL_6 }}
+          VITE_FLOW_TRIGGER_URL_7: ${{ vars.FLOW_TRIGGER_URL_7 }}
 
       - uses: actions/upload-pages-artifact@v3
         with:

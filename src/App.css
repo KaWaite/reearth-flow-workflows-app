@@ -425,6 +425,7 @@ strong { color: var(--text-strong); }
   margin: 0 auto;
   padding: 0 20px;
   display: flex;
+  flex-wrap: wrap;
   gap: 0;
 }
 

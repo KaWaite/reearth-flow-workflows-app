@@ -9,6 +9,10 @@ const TRIGGER_URLS: Record<WorkflowId, string | undefined> = {
   1: clean(import.meta.env.VITE_FLOW_TRIGGER_URL_1),
   2: clean(import.meta.env.VITE_FLOW_TRIGGER_URL_2),
   3: clean(import.meta.env.VITE_FLOW_TRIGGER_URL_3),
+  4: clean(import.meta.env.VITE_FLOW_TRIGGER_URL_4),
+  5: clean(import.meta.env.VITE_FLOW_TRIGGER_URL_5),
+  6: clean(import.meta.env.VITE_FLOW_TRIGGER_URL_6),
+  7: clean(import.meta.env.VITE_FLOW_TRIGGER_URL_7),
 };
 
 const API_KEY = clean(import.meta.env.VITE_FLOW_API_KEY);
@@ -50,5 +54,8 @@ export async function triggerWorkflow(id: WorkflowId, params: object): Promise<T
     throw new Error(`Trigger failed (${res.status}): ${text}`);
   }
 
-  return res.json() as Promise<TriggerResponse>;
+  const data = await res.json() as { runId?: string; jobId?: string };
+  const jobId = data.runId ?? data.jobId;
+  if (!jobId) throw new Error('Trigger response missing runId/jobId');
+  return { jobId };
 }

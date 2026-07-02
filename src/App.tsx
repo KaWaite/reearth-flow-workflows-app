@@ -3,6 +3,10 @@ import { isWorkflowConfigured } from './lib/api';
 import { CsvQualityWorkflow } from './workflows/CsvQuality';
 import { GeoJsonPipelineWorkflow } from './workflows/GeoJsonPipeline';
 import { CsvMergeWorkflow } from './workflows/CsvMerge';
+import { ColumnSelectorWorkflow } from './workflows/ColumnSelector';
+import { CsvSplitWorkflow } from './workflows/CsvSplit';
+import { CsvToJsonWorkflow } from './workflows/CsvToJson';
+import { SpatialFilterWorkflow } from './workflows/SpatialFilter';
 import type { WorkflowId } from './types';
 import './App.css';
 
@@ -10,6 +14,10 @@ const TABS: { id: WorkflowId; label: string }[] = [
   { id: 1, label: 'CSV Quality' },
   { id: 2, label: 'GeoJSON Pipeline' },
   { id: 3, label: 'CSV Merge' },
+  { id: 4, label: 'Col Selector' },
+  { id: 5, label: 'CSV Split' },
+  { id: 6, label: 'CSV → JSON' },
+  { id: 7, label: 'Size Filter' },
 ];
 
 export default function App() {
@@ -49,6 +57,10 @@ export default function App() {
         {activeTab === 1 && <CsvQualityWorkflow />}
         {activeTab === 2 && <GeoJsonPipelineWorkflow />}
         {activeTab === 3 && <CsvMergeWorkflow />}
+        {activeTab === 4 && <ColumnSelectorWorkflow />}
+        {activeTab === 5 && <CsvSplitWorkflow />}
+        {activeTab === 6 && <CsvToJsonWorkflow />}
+        {activeTab === 7 && <SpatialFilterWorkflow />}
       </main>
 
       <footer className="footer">
