@@ -10,7 +10,7 @@ const DEFAULTS: CsvQualityParams = {
 };
 
 const EXAMPLE: CsvQualityParams = {
-  csv_path: 'https://api.flow.reearth.io/assets/01kwdqhya38b2g4r2ywfksy1gn.csv',
+  csv_path: 'https://api.flow.reearth.io/assets/01kwgt5bs7a2yz0k83h0s0d91d.csv',
   key_column: 'era',
   output_prefix: 'output',
 };

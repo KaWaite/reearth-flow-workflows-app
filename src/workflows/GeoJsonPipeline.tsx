@@ -9,6 +9,12 @@ const DEFAULTS: GeoJsonParams = {
   output_name: 'analysis',
 };
 
+const EXAMPLE: GeoJsonParams = {
+  geojson_path: 'https://api.flow.reearth.io/assets/01kwgt3yfvgwkq9nh0jzc3f8tq.geojson',
+  category_column: 'category',
+  output_name: 'output',
+};
+
 export function GeoJsonPipelineWorkflow() {
   const [params, setParams] = useState<GeoJsonParams>(DEFAULTS);
   const [jobState, setJobState] = useState<JobState>('idle');
@@ -34,6 +40,10 @@ export function GeoJsonPipelineWorkflow() {
       setError(err instanceof Error ? err.message : String(err));
       setJobState('error');
     }
+  }
+
+  function handleFillExample() {
+    setParams(EXAMPLE);
   }
 
   function handleReset() {
@@ -72,7 +82,12 @@ export function GeoJsonPipelineWorkflow() {
 
       {jobState !== 'submitted' && (
         <form className="form-card" onSubmit={handleSubmit}>
-          <h2 className="form-title">Run Workflow</h2>
+          <div className="form-title-row">
+            <h2 className="form-title">Run Workflow</h2>
+            <button type="button" className="btn-example" onClick={handleFillExample}>
+              Fill example
+            </button>
+          </div>
 
           <div className="field">
             <label htmlFor="geojson_path">GeoJSON Path <span className="required">*</span></label>
