@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { isWorkflowConfigured, triggerWorkflow } from '../lib/api';
 import { JobStatus } from '../components/JobStatus';
+import { LearnMore } from '../components/LearnMore';
 import type { ColumnSelectorParams, JobResult, JobState } from '../types';
 
 const DEFAULTS: ColumnSelectorParams = {
@@ -45,7 +46,10 @@ export function ColumnSelectorWorkflow() {
   return (
     <>
       <section className="workflow-card">
-        <div className="workflow-card-label">Workflow 4</div>
+        <div className="workflow-card-top">
+          <span className="workflow-card-label">Workflow 4</span>
+          <a href="#" className="btn-open-flow btn-open-flow-disabled" onClick={(e) => e.preventDefault()}>Open in Flow ↗</a>
+        </div>
         <h1 className="workflow-card-title">Column Selector / PII Scrubber</h1>
         <p className="workflow-card-desc">
           Reads a CSV and removes the specified columns before writing the output. Use it to strip{' '}
@@ -57,6 +61,14 @@ export function ColumnSelectorWorkflow() {
           <li><span className="step-badge">2</span> AttributeManager — remove specified columns</li>
           <li><span className="step-badge">3</span> CsvWriter — write trimmed output</li>
         </ol>
+        <LearnMore
+          problem="Datasets often contain columns that should never leave the building — PII like email and phone numbers, internal cost fields, or system metadata. Sharing a full export by mistake creates compliance and trust risks."
+          whenToUse="Preparing a dataset for external sharing, complying with data minimization requirements (GDPR, HIPAA), or reducing file size before handing off to an analytics tool that only needs a subset of fields."
+          concepts={[
+            { name: 'AttributeManager', desc: 'adds, renames, or removes columns; in remove mode it drops the named columns and passes everything else through untouched' },
+          ]}
+          inputShape="Any CSV with a header row. List the exact column names to drop — spelling and case must match the header exactly. All other columns are kept as-is."
+        />
       </section>
 
       {!configured && (

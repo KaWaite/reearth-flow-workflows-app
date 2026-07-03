@@ -1,6 +1,23 @@
 import { useState } from 'react';
 import { isWorkflowConfigured, triggerWorkflow } from '../lib/api';
 import { JobStatus } from '../components/JobStatus';
+import { LearnMore } from '../components/LearnMore';
+import { WorkflowGraph } from '../components/WorkflowGraph';
+import type { GraphNode, GraphEdge } from '../components/WorkflowGraph';
+
+const GRAPH_NODES: GraphNode[] = [
+  { id: 'reader',   label: 'CsvReader',        col: 0, row: 0, type: 'source' },
+  { id: 'filter',   label: 'FeatureFilter',     col: 1, row: 0, type: 'filter' },
+  { id: 'attr',     label: 'AttributeManager',  col: 2, row: 0, type: 'processor' },
+  { id: 'clean',    label: 'CsvWriter',  sublabel: 'clean',    col: 3, row: 0, type: 'sink' },
+  { id: 'rejected', label: 'CsvWriter',  sublabel: 'rejected', col: 2, row: 1, type: 'sink' },
+];
+const GRAPH_EDGES: GraphEdge[] = [
+  { from: 'reader', to: 'filter' },
+  { from: 'filter', to: 'attr',     label: 'valid' },
+  { from: 'filter', to: 'rejected', label: 'unfiltered' },
+  { from: 'attr',   to: 'clean' },
+];
 import type { CsvQualityParams, JobResult, JobState } from '../types';
 
 const DEFAULTS: CsvQualityParams = {
@@ -55,19 +72,31 @@ export function CsvQualityWorkflow() {
   return (
     <>
       <section className="workflow-card">
-        <div className="workflow-card-label">Workflow 1</div>
+        <div className="workflow-card-top">
+          <span className="workflow-card-label">Workflow 1</span>
+          <a href="#" className="btn-open-flow btn-open-flow-disabled" onClick={(e) => e.preventDefault()}>Open in Flow ↗</a>
+        </div>
         <h1 className="workflow-card-title">CSV Data Quality Pipeline</h1>
         <p className="workflow-card-desc">
           Reads a CSV from a URL, splits rows into <strong>valid</strong> and{' '}
           <strong>rejected</strong> based on a required key column, enriches valid rows with a
           processed timestamp, and writes two output files: a clean CSV and a rejection log.
         </p>
-        <ol className="workflow-steps">
-          <li><span className="step-badge">1</span> CsvReader — fetch CSV from URL</li>
-          <li><span className="step-badge">2</span> FeatureFilter — route non-null key column → <code>valid</code>; rest → <code>unfiltered</code></li>
-          <li><span className="step-badge">3</span> AttributeManager — add <code>processed_at</code> to valid rows</li>
-          <li><span className="step-badge">4</span> CsvWriter ×2 — clean output + rejection log</li>
-        </ol>
+        <WorkflowGraph
+          nodes={GRAPH_NODES}
+          edges={GRAPH_EDGES}
+          ariaLabel="CSV Quality workflow: CsvReader feeds FeatureFilter which routes valid rows through AttributeManager to a clean CsvWriter, and unfiltered rows directly to a rejected CsvWriter"
+        />
+        <LearnMore
+          problem="Raw data almost always arrives dirty — missing IDs, blank required fields, inconsistent formatting. Loading it straight into a database or passing it downstream propagates those errors silently."
+          whenToUse="Validating vendor or form exports before ingestion. Any time you need a clean output file and a separate rejection log as two distinct deliverables."
+          concepts={[
+            { name: 'FeatureFilter', desc: 'routes rows to named output ports using a FlowExpr condition — rows where the key column is non-null go to valid, the rest to unfiltered' },
+            { name: 'AttributeManager', desc: 'adds, modifies, or removes columns — here it stamps a processed_at value on every valid row' },
+            { name: 'CsvWriter', desc: 'writes a feature stream to a CSV file; used twice to produce the clean output and rejection log independently' },
+          ]}
+          inputShape="Any CSV with a header row. Designate one column as the required key — rows where it is null or empty are routed to the rejection log. All other columns pass through unchanged."
+        />
       </section>
 
       {!configured && (

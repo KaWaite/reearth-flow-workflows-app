@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { isWorkflowConfigured, triggerWorkflow } from '../lib/api';
 import { JobStatus } from '../components/JobStatus';
+import { LearnMore } from '../components/LearnMore';
 import type { CsvToJsonParams, JobResult, JobState } from '../types';
 
 const DEFAULTS: CsvToJsonParams = {
@@ -44,7 +45,10 @@ export function CsvToJsonWorkflow() {
   return (
     <>
       <section className="workflow-card">
-        <div className="workflow-card-label">Workflow 6</div>
+        <div className="workflow-card-top">
+          <span className="workflow-card-label">Workflow 6</span>
+          <a href="#" className="btn-open-flow btn-open-flow-disabled" onClick={(e) => e.preventDefault()}>Open in Flow ↗</a>
+        </div>
         <h1 className="workflow-card-title">CSV to JSON</h1>
         <p className="workflow-card-desc">
           Converts a CSV table into a <strong>JSON array of objects</strong> — one object per row,
@@ -55,6 +59,15 @@ export function CsvToJsonWorkflow() {
           <li><span className="step-badge">1</span> CsvReader — fetch CSV from URL</li>
           <li><span className="step-badge">2</span> JsonWriter — write rows as JSON array</li>
         </ol>
+        <LearnMore
+          problem="Spreadsheet data is ubiquitous but most web applications, APIs, and no-code tools expect JSON. Manual copy-paste or Excel export is error-prone and does not scale."
+          whenToUse="Feeding tabular data into a JavaScript front-end, preparing a dataset for a REST API, or converting a report for consumption by a tool that only reads JSON."
+          concepts={[
+            { name: 'CsvReader', desc: 'parses the header row as attribute keys and each data row as a feature — the simplest source action in Flow' },
+            { name: 'JsonWriter', desc: 'emits features as a JSON array of objects, one object per row; this two-node pipeline is the most minimal workflow in Flow' },
+          ]}
+          inputShape="Any CSV with a header row. Every column becomes a JSON key; every row becomes an object. Numeric strings are kept as strings — Flow does not coerce types during CSV parsing."
+        />
       </section>
 
       {!configured && (

@@ -1,6 +1,23 @@
 import { useState } from 'react';
 import { isWorkflowConfigured, triggerWorkflow } from '../lib/api';
 import { JobStatus } from '../components/JobStatus';
+import { LearnMore } from '../components/LearnMore';
+import { WorkflowGraph } from '../components/WorkflowGraph';
+import type { GraphNode, GraphEdge } from '../components/WorkflowGraph';
+
+const GRAPH_NODES: GraphNode[] = [
+  { id: 'reader',  label: 'CsvReader',     col: 0, row: 1, type: 'source' },
+  { id: 'filter',  label: 'FeatureFilter', col: 1, row: 1, type: 'filter' },
+  { id: 'writerA', label: 'CsvWriter', sublabel: 'category A', col: 2, row: 0, type: 'sink' },
+  { id: 'writerB', label: 'CsvWriter', sublabel: 'category B', col: 2, row: 1, type: 'sink' },
+  { id: 'writerC', label: 'CsvWriter', sublabel: 'catch-all',  col: 2, row: 2, type: 'sink' },
+];
+const GRAPH_EDGES: GraphEdge[] = [
+  { from: 'reader',  to: 'filter' },
+  { from: 'filter',  to: 'writerA', label: 'cat A' },
+  { from: 'filter',  to: 'writerB', label: 'cat B' },
+  { from: 'filter',  to: 'writerC', label: 'other' },
+];
 import type { CsvSplitParams, JobResult, JobState } from '../types';
 
 const DEFAULTS: CsvSplitParams = {
@@ -45,18 +62,29 @@ export function CsvSplitWorkflow() {
   return (
     <>
       <section className="workflow-card">
-        <div className="workflow-card-label">Workflow 5</div>
+        <div className="workflow-card-top">
+          <span className="workflow-card-label">Workflow 5</span>
+          <a href="#" className="btn-open-flow btn-open-flow-disabled" onClick={(e) => e.preventDefault()}>Open in Flow ↗</a>
+        </div>
         <h1 className="workflow-card-title">Split Dataset by Category</h1>
         <p className="workflow-card-desc">
           Routes rows from a single CSV into <strong>separate output files</strong> based on the
           value of a category column — one file per category. Useful for splitting sales data by
           region, records by year, or any dataset segmented by a known attribute.
         </p>
-        <ol className="workflow-steps">
-          <li><span className="step-badge">1</span> CsvReader — fetch CSV from URL</li>
-          <li><span className="step-badge">2</span> FeatureFilter — route rows to per-category output ports</li>
-          <li><span className="step-badge">3</span> CsvWriter ×N — one file per category</li>
-        </ol>
+        <WorkflowGraph
+          nodes={GRAPH_NODES}
+          edges={GRAPH_EDGES}
+          ariaLabel="CSV Split workflow: CsvReader feeds FeatureFilter which fans out to separate CsvWriter nodes for category A, category B, and a catch-all"
+        />
+        <LearnMore
+          problem="A single combined export needs to be split into separate files for different consumers — regional teams each want their own slice, or a downstream system expects one file per category."
+          whenToUse="Splitting a master sales file by territory, segmenting event logs by severity level, or partitioning a dataset for per-team delivery without manual filtering in a spreadsheet."
+          concepts={[
+            { name: 'FeatureFilter', desc: 'routes rows to named output ports based on a FlowExpr condition; each port maps to a separate CsvWriter — the category values and port count are fixed at workflow build time' },
+          ]}
+          inputShape="A CSV with a column whose values match the categories configured in the workflow. Rows that do not match any configured category are routed to a catch-all output. The category column must be consistent — misspellings or unexpected values go to the catch-all."
+        />
       </section>
 
       {!configured && (

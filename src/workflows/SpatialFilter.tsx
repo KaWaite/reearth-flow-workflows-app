@@ -1,6 +1,23 @@
 import { useState } from 'react';
 import { isWorkflowConfigured, triggerWorkflow } from '../lib/api';
 import { JobStatus } from '../components/JobStatus';
+import { LearnMore } from '../components/LearnMore';
+import { WorkflowGraph } from '../components/WorkflowGraph';
+import type { GraphNode, GraphEdge } from '../components/WorkflowGraph';
+
+const GRAPH_NODES: GraphNode[] = [
+  { id: 'reader',  label: 'GeoJsonReader',  col: 0, row: 0, type: 'source' },
+  { id: 'area',    label: 'AreaCalculator', col: 1, row: 0, type: 'processor' },
+  { id: 'filter',  label: 'FeatureFilter',  col: 2, row: 0, type: 'filter' },
+  { id: 'writer',  label: 'GeoJsonWriter',  col: 3, row: 0, type: 'sink' },
+  { id: 'discard', label: 'discarded',      col: 3, row: 1, type: 'discard' },
+];
+const GRAPH_EDGES: GraphEdge[] = [
+  { from: 'reader', to: 'area' },
+  { from: 'area',   to: 'filter' },
+  { from: 'filter', to: 'writer',  label: '≥ min' },
+  { from: 'filter', to: 'discard', label: '< min' },
+];
 import type { SpatialFilterParams, JobResult, JobState } from '../types';
 
 const DEFAULTS: SpatialFilterParams = {
@@ -52,19 +69,30 @@ export function SpatialFilterWorkflow() {
   return (
     <>
       <section className="workflow-card">
-        <div className="workflow-card-label">Workflow 7</div>
+        <div className="workflow-card-top">
+          <span className="workflow-card-label">Workflow 7</span>
+          <a href="#" className="btn-open-flow btn-open-flow-disabled" onClick={(e) => e.preventDefault()}>Open in Flow ↗</a>
+        </div>
         <h1 className="workflow-card-title">Spatial Size Filter</h1>
         <p className="workflow-card-desc">
           Calculates the area of each polygon feature and keeps only those{' '}
           <strong>above a minimum size threshold</strong>. Useful for removing small slivers,
           noise polygons, or features below a meaningful size for your use case.
         </p>
-        <ol className="workflow-steps">
-          <li><span className="step-badge">1</span> GeoJsonReader — fetch features from URL</li>
-          <li><span className="step-badge">2</span> AreaCalculator — compute area in m² (requires metric source CRS)</li>
-          <li><span className="step-badge">3</span> FeatureFilter — keep features where area ≥ threshold</li>
-          <li><span className="step-badge">4</span> GeoJsonWriter — write kept features</li>
-        </ol>
+        <WorkflowGraph
+          nodes={GRAPH_NODES}
+          edges={GRAPH_EDGES}
+          ariaLabel="Spatial Filter workflow: GeoJsonReader to AreaCalculator to FeatureFilter, which passes features meeting the minimum area to GeoJsonWriter and discards the rest"
+        />
+        <LearnMore
+          problem="Real-world spatial datasets contain noise — tiny slivers from digitization errors, boundary fragments, or polygons too small to be meaningful at your analysis scale. They inflate feature counts and skew area statistics."
+          whenToUse="Cleaning cadastral or land-use data before a spatial join, removing polygon artifacts before visualization at a fixed zoom level, or ensuring a minimum parcel size before statistical analysis."
+          concepts={[
+            { name: 'AreaCalculator', desc: 'computes polygon area from the geometry and appends it as an attribute — no pre-computed area column needed, but the source CRS must be metric' },
+            { name: 'FeatureFilter', desc: 'evaluates a FlowExpr condition per feature — here it checks the computed area attribute against the threshold you provide at trigger time via env["min_area_m2"]' },
+          ]}
+          inputShape="GeoJSON with polygon or multipolygon features in a metric projected CRS (e.g. EPSG:2154, EPSG:3857). WGS84 input will produce incorrect area values. No pre-computed area attribute is required."
+        />
       </section>
 
       {!configured && (

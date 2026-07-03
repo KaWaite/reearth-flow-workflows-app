@@ -15,7 +15,7 @@ const TRIGGER_URLS: Record<WorkflowId, string | undefined> = {
   7: clean(import.meta.env.VITE_FLOW_URL_SPATIAL_FILTER),
 };
 
-const TRIGGER_VAR_NAMES: Record<WorkflowId, string> = {
+export const TRIGGER_VAR_NAMES: Record<WorkflowId, string> = {
   1: 'FLOW_URL_CSV_QUALITY',
   2: 'FLOW_URL_GEOJSON',
   3: 'FLOW_URL_CSV_MERGE',

@@ -1,6 +1,25 @@
 import { useState } from 'react';
 import { isWorkflowConfigured, triggerWorkflow } from '../lib/api';
 import { JobStatus } from '../components/JobStatus';
+import { LearnMore } from '../components/LearnMore';
+import { WorkflowGraph } from '../components/WorkflowGraph';
+import type { GraphNode, GraphEdge } from '../components/WorkflowGraph';
+
+const GRAPH_NODES: GraphNode[] = [
+  { id: 'reader',  label: 'GeoJsonReader',       col: 0, row: 0, type: 'source' },
+  { id: 'area',    label: 'AreaCalculator',       col: 1, row: 0, type: 'processor' },
+  { id: 'reproj',  label: 'HReprojector', sublabel: '→ EPSG:4326', col: 2, row: 0, type: 'processor' },
+  { id: 'geojson', label: 'GeoJsonWriter',        col: 3, row: 0, type: 'sink' },
+  { id: 'agg',     label: 'AttrAggregator',       col: 2, row: 1, type: 'processor' },
+  { id: 'json',    label: 'JsonWriter',            col: 3, row: 1, type: 'sink' },
+];
+const GRAPH_EDGES: GraphEdge[] = [
+  { from: 'reader', to: 'area' },
+  { from: 'area',   to: 'reproj', label: 'branch A' },
+  { from: 'area',   to: 'agg',    label: 'branch B' },
+  { from: 'reproj', to: 'geojson' },
+  { from: 'agg',    to: 'json' },
+];
 import type { GeoJsonParams, JobResult, JobState } from '../types';
 
 const DEFAULTS: GeoJsonParams = {
@@ -56,7 +75,10 @@ export function GeoJsonPipelineWorkflow() {
   return (
     <>
       <section className="workflow-card">
-        <div className="workflow-card-label">Workflow 2</div>
+        <div className="workflow-card-top">
+          <span className="workflow-card-label">Workflow 2</span>
+          <a href="#" className="btn-open-flow btn-open-flow-disabled" onClick={(e) => e.preventDefault()}>Open in Flow ↗</a>
+        </div>
         <h1 className="workflow-card-title">GeoJSON Spatial Analysis Pipeline</h1>
         <p className="workflow-card-desc">
           Reads a GeoJSON file of polygon features in a metric CRS, calculates polygon areas,
@@ -64,12 +86,21 @@ export function GeoJsonPipelineWorkflow() {
           <strong>enriched GeoJSON</strong> ready for Cesium; the other aggregates feature counts
           by category and writes a <strong>JSON summary</strong>.
         </p>
-        <ol className="workflow-steps">
-          <li><span className="step-badge">1</span> GeoJsonReader — fetch features from URL</li>
-          <li><span className="step-badge">2</span> AreaCalculator — compute polygon areas in m² (requires metric source CRS)</li>
-          <li><span className="step-badge">3a</span> HorizontalReprojector (→ EPSG:4326) → GeoJsonWriter — Cesium-ready output</li>
-          <li><span className="step-badge">3b</span> AttributeAggregator → JsonWriter — count features by category</li>
-        </ol>
+        <WorkflowGraph
+          nodes={GRAPH_NODES}
+          edges={GRAPH_EDGES}
+          ariaLabel="GeoJSON Pipeline: GeoJsonReader to AreaCalculator, then splits into branch A (HReprojector to GeoJsonWriter) and branch B (AttrAggregator to JsonWriter)"
+        />
+        <LearnMore
+          problem="GIS exports use many different coordinate reference systems. Web maps (Cesium, Mapbox, Leaflet) all require WGS84 (EPSG:4326), but area calculations need a metric CRS — you can't have both in one pass without a reprojection step."
+          whenToUse="Preparing polygon layers for web visualization while also generating feature-count statistics. A common pattern when publishing city or land-use data to a web map."
+          concepts={[
+            { name: 'AreaCalculator', desc: 'computes polygon area in m² from the geometry — requires a metric projected CRS; WGS84 input will produce incorrect results' },
+            { name: 'HorizontalReprojector', desc: 'transforms coordinates from one CRS to another; here converts to EPSG:4326 for the Cesium-ready output' },
+            { name: 'AttributeAggregator', desc: 'groups features by a column and computes aggregate values — here counts features per category for the stats output' },
+          ]}
+          inputShape="GeoJSON with polygon features in a metric projected CRS (e.g. EPSG:2154, EPSG:3857, EPSG:6668). WGS84 input will produce incorrect area values. Each feature must have the category column you specify."
+        />
       </section>
 
       {!configured && (

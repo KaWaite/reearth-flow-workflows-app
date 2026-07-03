@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { isWorkflowConfigured, triggerWorkflow } from '../lib/api';
 import { JobStatus } from '../components/JobStatus';
+import { LearnMore } from '../components/LearnMore';
 import type { CsvMergeParams, JobResult, JobState } from '../types';
 
 const DEFAULTS: CsvMergeParams = {
@@ -46,7 +47,10 @@ export function CsvMergeWorkflow() {
   return (
     <>
       <section className="workflow-card">
-        <div className="workflow-card-label">Workflow 3</div>
+        <div className="workflow-card-top">
+          <span className="workflow-card-label">Workflow 3</span>
+          <a href="#" className="btn-open-flow btn-open-flow-disabled" onClick={(e) => e.preventDefault()}>Open in Flow ↗</a>
+        </div>
         <h1 className="workflow-card-title">Multi-source CSV Merge &amp; Dedup</h1>
         <p className="workflow-card-desc">
           Reads two CSV files from separate URLs, merges them into a single feature stream,
@@ -61,6 +65,16 @@ export function CsvMergeWorkflow() {
           <li><span className="step-badge">4</span> AttributeRenamer — normalize column names</li>
           <li><span className="step-badge">5</span> CsvWriter — single unified output</li>
         </ol>
+        <LearnMore
+          problem="The same entity often lives in two separate system exports — one record per system, with duplicates and slightly different column names. Manual reconciliation in a spreadsheet is slow and error-prone at scale."
+          whenToUse="Reconciling CRM and billing exports, combining weekly snapshots from two departments, or merging data collected from two independent sources before loading into a database."
+          concepts={[
+            { name: 'FeatureMerger', desc: 'combines two separate feature streams into one — the equivalent of a SQL UNION ALL' },
+            { name: 'AttributeDuplicateFilter', desc: 'keeps only the first occurrence of each unique key value, discarding later duplicates — first-occurrence wins' },
+            { name: 'AttributeRenamer', desc: 'renames columns to a consistent schema, useful when the two source files use different names for the same field' },
+          ]}
+          inputShape="Two CSVs that share a common key column (e.g. id, email). The schemas do not need to be identical — columns present in only one source are kept as-is. The key column must contain values that uniquely identify each record."
+        />
       </section>
 
       {!configured && (

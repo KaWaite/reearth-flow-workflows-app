@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { isWorkflowConfigured } from './lib/api';
+import { isWorkflowConfigured, TRIGGER_VAR_NAMES } from './lib/api';
+import { SetupGuide } from './components/SetupGuide';
 import { CsvQualityWorkflow } from './workflows/CsvQuality';
 import { GeoJsonPipelineWorkflow } from './workflows/GeoJsonPipeline';
 import { CsvMergeWorkflow } from './workflows/CsvMerge';
@@ -22,6 +23,7 @@ const TABS: { id: WorkflowId; label: string }[] = [
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<WorkflowId>(1);
+  const [showSetup, setShowSetup] = useState(false);
 
   return (
     <div className="layout">
@@ -32,6 +34,7 @@ export default function App() {
             <span className="header-title">Flow Trigger</span>
           </div>
           <span className="header-badge">Re:Earth Flow</span>
+          <button className="btn-setup" onClick={() => setShowSetup(true)}>How to set up</button>
         </div>
       </header>
 
@@ -62,6 +65,13 @@ export default function App() {
         {activeTab === 6 && <CsvToJsonWorkflow />}
         {activeTab === 7 && <SpatialFilterWorkflow />}
       </main>
+
+      {showSetup && (
+        <SetupGuide
+          varName={TRIGGER_VAR_NAMES[activeTab]}
+          onClose={() => setShowSetup(false)}
+        />
+      )}
 
       <footer className="footer">
         Built for Re:Earth Flow · homework assignment
