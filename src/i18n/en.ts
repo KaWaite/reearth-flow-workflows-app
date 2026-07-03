@@ -75,8 +75,8 @@ export interface Translations {
 
 export const en: Translations = {
   header: {
-    title: "Pipeline Explorer",
-    badge: "Re:Earth Flow",
+    title: "Re:Earth Flow",
+    badge: "Pipeline Explorer",
     setupBtn: "How to set up",
   },
   footer: "Explore ETL pipelines built with Re:Earth Flow",
