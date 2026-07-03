@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { isWorkflowConfigured, triggerWorkflow } from '../lib/api';
+import { isWorkflowConfigured, triggerWorkflow, getShareUrl } from '../lib/api';
 import { useT, interp } from '../i18n';
 import { JobStatus } from '../components/JobStatus';
 import { LearnMore } from '../components/LearnMore';
@@ -36,6 +36,7 @@ export function SpatialFilterWorkflow() {
   const wt = t.workflows.spatialFilter;
 
   const configured = isWorkflowConfigured(7);
+  const shareUrl = getShareUrl(7);
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     setParams((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -76,7 +77,10 @@ export function SpatialFilterWorkflow() {
       <section className="workflow-card">
         <div className="workflow-card-top">
           <span className="workflow-card-label">{t.common.workflowLabel} 7</span>
-          <a href="#" className="btn-open-flow btn-open-flow-disabled" onClick={(e) => e.preventDefault()}>{t.common.openInFlow}</a>
+          {shareUrl
+            ? <a href={shareUrl} target="_blank" rel="noopener noreferrer" className="btn-open-flow">{t.common.openInFlow}</a>
+            : <a href="#" className="btn-open-flow btn-open-flow-disabled" onClick={(e) => e.preventDefault()}>{t.common.openInFlow}</a>
+          }
         </div>
         <h1 className="workflow-card-title">{wt.title}</h1>
         <p className="workflow-card-desc" dangerouslySetInnerHTML={{ __html: wt.desc }} />

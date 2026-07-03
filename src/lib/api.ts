@@ -15,6 +15,16 @@ const TRIGGER_URLS: Record<WorkflowId, string | undefined> = {
   7: clean(import.meta.env.VITE_FLOW_URL_SPATIAL_FILTER),
 };
 
+const SHARE_URLS: Record<WorkflowId, string | undefined> = {
+  1: clean(import.meta.env.VITE_FLOW_SHARE_CSV_QUALITY),
+  2: clean(import.meta.env.VITE_FLOW_SHARE_GEOJSON),
+  3: clean(import.meta.env.VITE_FLOW_SHARE_CSV_MERGE),
+  4: clean(import.meta.env.VITE_FLOW_SHARE_COL_SELECT),
+  5: clean(import.meta.env.VITE_FLOW_SHARE_CSV_SPLIT),
+  6: clean(import.meta.env.VITE_FLOW_SHARE_CSV_JSON),
+  7: clean(import.meta.env.VITE_FLOW_SHARE_SPATIAL_FILTER),
+};
+
 export const TRIGGER_VAR_NAMES: Record<WorkflowId, string> = {
   1: 'FLOW_URL_CSV_QUALITY',
   2: 'FLOW_URL_GEOJSON',
@@ -26,6 +36,10 @@ export const TRIGGER_VAR_NAMES: Record<WorkflowId, string> = {
 };
 
 const API_KEY = clean(import.meta.env.VITE_FLOW_API_KEY);
+
+export function getShareUrl(id: WorkflowId): string | undefined {
+  return SHARE_URLS[id];
+}
 
 export function isWorkflowConfigured(id: WorkflowId): boolean {
   return !!(TRIGGER_URLS[id] && API_KEY);
