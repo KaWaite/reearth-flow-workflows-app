@@ -2,11 +2,11 @@ import type { Translations } from './en';
 
 export const ja: Translations = {
   header: {
-    title: 'Flow Trigger',
+    title: 'パイプラインエクスプローラー',
     badge: 'Re:Earth Flow',
     setupBtn: 'セットアップ方法',
   },
-  footer: 'Re:Earth Flow 学習用 · 課題',
+  footer: 'Re:Earth Flowで学ぶETLパイプライン',
   tabs: {
     1: 'CSV品質チェック',
     2: 'GeoJSONパイプライン',
@@ -20,7 +20,7 @@ export const ja: Translations = {
     runWorkflow: 'ワークフローを実行',
     running: '実行中…',
     fillExample: 'サンプルを入力',
-    openInFlow: 'Flowで開く ↗',
+    openInFlow: 'Re:Earth Flowで開く ↗',
     runAgain: '再実行',
     copy: 'コピー',
     copied: '✓ コピー済み',
@@ -31,7 +31,7 @@ export const ja: Translations = {
     toggle: 'このパイプラインについて詳しく',
     problemHeading: '解決する課題',
     whenHeading: '使用するタイミング',
-    conceptsHeading: 'Flowの主要コンセプト',
+    conceptsHeading: 'Re:Earth Flowの主要コンセプト',
     inputHeading: '入力データの要件',
   },
   jobStatus: {
@@ -45,8 +45,8 @@ export const ja: Translations = {
     intro: 'このサイトの各ワークフローは、デプロイされたRe:Earth Flowプロジェクトに対応しています。各ワークフローを使えるようにするには、以下の手順を一度実施してください。',
     steps: [
       {
-        title: 'Flowで共有ワークフローを開く',
-        body: 'ワークフローカードの<em>Flowで開く</em>ボタンをクリックします。Re:Earth Flowエディタで読み取り専用のワークフローが開きます。',
+        title: 'Re:Earth Flowで共有ワークフローを開く',
+        body: 'ワークフローカードの<em>Re:Earth Flowで開く</em>ボタンをクリックします。Re:Earth Flowエディタで読み取り専用のワークフローが開きます。',
       },
       {
         title: 'ワークスペースにフォークする',
@@ -73,7 +73,7 @@ export const ja: Translations = {
     ],
     localTitle: 'ローカル開発',
     localDesc: '以下を<code>.env.local</code>ファイルに追加してください（このファイルはコミットしないでください）：',
-    localDevHint: 'その後、<code>npm run dev</code>を実行します。ViteデブサーバーはCORSを回避するためにFlow APIリクエストを自動的にプロキシします。',
+    localDevHint: 'その後、<code>npm run dev</code>を実行します。ViteデブサーバーはCORSを回避するためにRe:Earth Flow APIリクエストを自動的にプロキシします。',
     localVarHint: '= <トリガーURL>',
     localApiKeyHint: '= <APIキー>',
   },
@@ -198,8 +198,8 @@ export const ja: Translations = {
         problem: 'スプレッドシートデータは至る所にありますが、ほとんどのWebアプリケーション、API、ノーコードツールはJSONを期待します。手動のコピー&ペーストやExcelエクスポートはエラーが発生しやすく、スケールしません。',
         whenToUse: 'JavaScriptフロントエンドへの表形式データの供給、REST API用データセットの準備、またはJSONのみを読み取るツール向けのレポート変換。',
         concepts: [
-          { name: 'CsvReader', desc: 'ヘッダー行を属性キーとして、各データ行をフィーチャとしてパースします — Flowで最もシンプルなソースアクションです' },
-          { name: 'JsonWriter', desc: 'フィーチャをJSONオブジェクト配列として出力します（1行につき1オブジェクト）。この2ノードパイプラインはFlowで最もミニマルなワークフローです' },
+          { name: 'CsvReader', desc: 'ヘッダー行を属性キーとして、各データ行をフィーチャとしてパースします — Re:Earth Flowで最もシンプルなソースアクションです' },
+          { name: 'JsonWriter', desc: 'フィーチャをJSONオブジェクト配列として出力します（1行につき1オブジェクト）。この2ノードパイプラインはRe:Earth Flowで最もミニマルなワークフローです' },
         ],
         inputShape: 'ヘッダー行を持つ任意のCSV。すべての列がJSONキーに、すべての行がオブジェクトになります。数値文字列は文字列のまま保持されます — FlowはCSVパース時に型変換を行いません。',
       },
