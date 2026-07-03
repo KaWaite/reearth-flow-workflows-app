@@ -41,6 +41,14 @@ jobs:
           VITE_FLOW_URL_CSV_SPLIT: ${{ vars.FLOW_URL_CSV_SPLIT }}
           VITE_FLOW_URL_CSV_JSON: ${{ vars.FLOW_URL_CSV_JSON }}
           VITE_FLOW_URL_SPATIAL_FILTER: ${{ vars.FLOW_URL_SPATIAL_FILTER }}
+          # Per-workflow "Open in Flow" shared project URLs — repository variables
+          VITE_FLOW_SHARE_CSV_QUALITY: ${{ vars.FLOW_SHARE_CSV_QUALITY }}
+          VITE_FLOW_SHARE_GEOJSON: ${{ vars.FLOW_SHARE_GEOJSON }}
+          VITE_FLOW_SHARE_CSV_MERGE: ${{ vars.FLOW_SHARE_CSV_MERGE }}
+          VITE_FLOW_SHARE_COL_SELECT: ${{ vars.FLOW_SHARE_COL_SELECT }}
+          VITE_FLOW_SHARE_CSV_SPLIT: ${{ vars.FLOW_SHARE_CSV_SPLIT }}
+          VITE_FLOW_SHARE_CSV_JSON: ${{ vars.FLOW_SHARE_CSV_JSON }}
+          VITE_FLOW_SHARE_SPATIAL_FILTER: ${{ vars.FLOW_SHARE_SPATIAL_FILTER }}
 
       - uses: actions/upload-pages-artifact@v3
         with:
