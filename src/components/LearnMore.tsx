@@ -1,3 +1,5 @@
+import { useT } from '../i18n';
+
 interface Concept {
   name: string;
   desc: string;
@@ -11,20 +13,23 @@ interface Props {
 }
 
 export function LearnMore({ problem, whenToUse, concepts, inputShape }: Props) {
+  const { t } = useT();
+  const lm = t.learnMore;
+
   return (
     <details className="learn-more">
-      <summary className="learn-more-toggle">Learn more about this pipeline</summary>
+      <summary className="learn-more-toggle">{lm.toggle}</summary>
       <div className="learn-more-body">
         <div className="learn-more-section">
-          <h3 className="learn-more-heading">The problem it solves</h3>
+          <h3 className="learn-more-heading">{lm.problemHeading}</h3>
           <p>{problem}</p>
         </div>
         <div className="learn-more-section">
-          <h3 className="learn-more-heading">When to use it</h3>
+          <h3 className="learn-more-heading">{lm.whenHeading}</h3>
           <p>{whenToUse}</p>
         </div>
         <div className="learn-more-section">
-          <h3 className="learn-more-heading">Key Flow concepts</h3>
+          <h3 className="learn-more-heading">{lm.conceptsHeading}</h3>
           <ul className="concept-list">
             {concepts.map((c) => (
               <li key={c.name}>
@@ -34,7 +39,7 @@ export function LearnMore({ problem, whenToUse, concepts, inputShape }: Props) {
           </ul>
         </div>
         <div className="learn-more-section">
-          <h3 className="learn-more-heading">Input expectations</h3>
+          <h3 className="learn-more-heading">{lm.inputHeading}</h3>
           <p>{inputShape}</p>
         </div>
       </div>
