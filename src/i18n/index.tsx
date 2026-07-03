@@ -53,3 +53,7 @@ export function LangProvider({ children }: { children: ReactNode }) {
 export function useT() {
   return useContext(LangContext);
 }
+
+export function interp(template: string, vars: Record<string, string>): string {
+  return Object.entries(vars).reduce((s, [k, v]) => s.replace(`{${k}}`, v), template);
+}

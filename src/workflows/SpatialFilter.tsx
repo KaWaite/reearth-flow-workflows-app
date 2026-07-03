@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { isWorkflowConfigured, triggerWorkflow } from '../lib/api';
+import { useT, interp } from '../i18n';
 import { JobStatus } from '../components/JobStatus';
 import { LearnMore } from '../components/LearnMore';
 import { WorkflowGraph } from '../components/WorkflowGraph';
 import type { GraphNode, GraphEdge } from '../components/WorkflowGraph';
+import type { SpatialFilterParams, JobResult, JobState } from '../types';
 
 const GRAPH_NODES: GraphNode[] = [
   { id: 'reader',  label: 'GeoJsonReader',  col: 0, row: 0, type: 'source' },
@@ -18,7 +20,6 @@ const GRAPH_EDGES: GraphEdge[] = [
   { from: 'filter', to: 'writer',  label: '≥ min' },
   { from: 'filter', to: 'discard', label: '< min' },
 ];
-import type { SpatialFilterParams, JobResult, JobState } from '../types';
 
 const DEFAULTS: SpatialFilterParams = {
   geojson_path: '',
@@ -31,6 +32,8 @@ export function SpatialFilterWorkflow() {
   const [jobState, setJobState] = useState<JobState>('idle');
   const [job, setJob] = useState<JobResult | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const { t } = useT();
+  const wt = t.workflows.spatialFilter;
 
   const configured = isWorkflowConfigured(7);
 
@@ -66,49 +69,43 @@ export function SpatialFilterWorkflow() {
       : `${areaNum.toLocaleString()} m²`
     : null;
 
+  const name = params.output_name || 'filtered';
+
   return (
     <>
       <section className="workflow-card">
         <div className="workflow-card-top">
-          <span className="workflow-card-label">Workflow 7</span>
-          <a href="#" className="btn-open-flow btn-open-flow-disabled" onClick={(e) => e.preventDefault()}>Open in Flow ↗</a>
+          <span className="workflow-card-label">{t.common.workflowLabel} 7</span>
+          <a href="#" className="btn-open-flow btn-open-flow-disabled" onClick={(e) => e.preventDefault()}>{t.common.openInFlow}</a>
         </div>
-        <h1 className="workflow-card-title">Spatial Size Filter</h1>
-        <p className="workflow-card-desc">
-          Calculates the area of each polygon feature and keeps only those{' '}
-          <strong>above a minimum size threshold</strong>. Useful for removing small slivers,
-          noise polygons, or features below a meaningful size for your use case.
-        </p>
+        <h1 className="workflow-card-title">{wt.title}</h1>
+        <p className="workflow-card-desc" dangerouslySetInnerHTML={{ __html: wt.desc }} />
         <WorkflowGraph
           nodes={GRAPH_NODES}
           edges={GRAPH_EDGES}
           ariaLabel="Spatial Filter workflow: GeoJsonReader to AreaCalculator to FeatureFilter, which passes features meeting the minimum area to GeoJsonWriter and discards the rest"
         />
         <LearnMore
-          problem="Real-world spatial datasets contain noise — tiny slivers from digitization errors, boundary fragments, or polygons too small to be meaningful at your analysis scale. They inflate feature counts and skew area statistics."
-          whenToUse="Cleaning cadastral or land-use data before a spatial join, removing polygon artifacts before visualization at a fixed zoom level, or ensuring a minimum parcel size before statistical analysis."
-          concepts={[
-            { name: 'AreaCalculator', desc: 'computes polygon area from the geometry and appends it as an attribute — no pre-computed area column needed, but the source CRS must be metric' },
-            { name: 'FeatureFilter', desc: 'evaluates a FlowExpr condition per feature — here it checks the computed area attribute against the threshold you provide at trigger time via env["min_area_m2"]' },
-          ]}
-          inputShape="GeoJSON with polygon or multipolygon features in a metric projected CRS (e.g. EPSG:2154, EPSG:3857). WGS84 input will produce incorrect area values. No pre-computed area attribute is required."
+          problem={wt.learnMore.problem}
+          whenToUse={wt.learnMore.whenToUse}
+          concepts={wt.learnMore.concepts}
+          inputShape={wt.learnMore.inputShape}
         />
       </section>
 
       {!configured && (
         <div className="alert alert-warn">
-          <strong>Not configured.</strong> Set <code>FLOW_URL_SPATIAL_FILTER</code> (variable) and{' '}
-          <code>FLOW_API_KEY</code> (secret) in your GitHub repository settings, then redeploy.
-          For local dev, add them to <code>.env.local</code>.
+          <strong>{t.common.notConfiguredTitle}</strong>{' '}
+          <span dangerouslySetInnerHTML={{ __html: wt.alert }} />
         </div>
       )}
 
       {jobState !== 'submitted' && (
         <form className="form-card" onSubmit={handleSubmit}>
-          <h2 className="form-title">Run Workflow</h2>
+          <h2 className="form-title">{t.common.runWorkflow}</h2>
 
           <div className="field">
-            <label htmlFor="geojson_path">GeoJSON Path <span className="required">*</span></label>
+            <label htmlFor="geojson_path">{wt.fields.geojsonPath.label} <span className="required">*</span></label>
             <input
               id="geojson_path"
               name="geojson_path"
@@ -119,14 +116,12 @@ export function SpatialFilterWorkflow() {
               onChange={handleChange}
               disabled={jobState === 'submitting'}
             />
-            <span className="field-hint">
-              URL to a GeoJSON file with polygon features in a metric CRS (e.g. EPSG:2154, 3857).
-            </span>
+            <span className="field-hint">{wt.fields.geojsonPath.hint}</span>
           </div>
 
           <div className="field">
             <label htmlFor="min_area_m2">
-              Minimum Area (m²) <span className="required">*</span>
+              {wt.fields.minArea.label} <span className="required">*</span>
             </label>
             <input
               id="min_area_m2"
@@ -141,13 +136,13 @@ export function SpatialFilterWorkflow() {
               disabled={jobState === 'submitting'}
             />
             <span className="field-hint">
-              Features with area below this value are discarded.
-              {areaLabel && <> That's <strong>{areaLabel}</strong>.</>}
+              {wt.fields.minArea.hint}
+              {areaLabel && <> {wt.minAreaThat} <strong>{areaLabel}</strong>{wt.minAreaThatSuffix}</>}
             </span>
           </div>
 
           <div className="field">
-            <label htmlFor="output_name">Output Name</label>
+            <label htmlFor="output_name">{wt.fields.outputName.label}</label>
             <input
               id="output_name"
               name="output_name"
@@ -157,9 +152,10 @@ export function SpatialFilterWorkflow() {
               onChange={handleChange}
               disabled={jobState === 'submitting'}
             />
-            <span className="field-hint">
-              Output file: <code>{params.output_name || 'filtered'}.geojson</code>
-            </span>
+            <span
+              className="field-hint"
+              dangerouslySetInnerHTML={{ __html: interp(wt.fields.outputName.hint, { name }) }}
+            />
           </div>
 
           {jobState === 'error' && error && (
@@ -171,7 +167,7 @@ export function SpatialFilterWorkflow() {
             className="btn-primary"
             disabled={jobState === 'submitting' || !configured}
           >
-            {jobState === 'submitting' ? <><span className="spinner" /> Running…</> : 'Run Workflow'}
+            {jobState === 'submitting' ? <><span className="spinner" /> {t.common.running}</> : t.common.runWorkflow}
           </button>
         </form>
       )}

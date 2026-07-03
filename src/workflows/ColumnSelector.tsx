@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { isWorkflowConfigured, triggerWorkflow } from '../lib/api';
+import { useT, interp } from '../i18n';
 import { JobStatus } from '../components/JobStatus';
 import { LearnMore } from '../components/LearnMore';
 import type { ColumnSelectorParams, JobResult, JobState } from '../types';
@@ -15,6 +16,8 @@ export function ColumnSelectorWorkflow() {
   const [jobState, setJobState] = useState<JobState>('idle');
   const [job, setJob] = useState<JobResult | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const { t } = useT();
+  const wt = t.workflows.colSelect;
 
   const configured = isWorkflowConfigured(4);
 
@@ -43,48 +46,43 @@ export function ColumnSelectorWorkflow() {
     setParams(DEFAULTS);
   }
 
+  const name = params.output_name || 'output';
+
   return (
     <>
       <section className="workflow-card">
         <div className="workflow-card-top">
-          <span className="workflow-card-label">Workflow 4</span>
-          <a href="#" className="btn-open-flow btn-open-flow-disabled" onClick={(e) => e.preventDefault()}>Open in Flow ↗</a>
+          <span className="workflow-card-label">{t.common.workflowLabel} 4</span>
+          <a href="#" className="btn-open-flow btn-open-flow-disabled" onClick={(e) => e.preventDefault()}>{t.common.openInFlow}</a>
         </div>
-        <h1 className="workflow-card-title">Column Selector / PII Scrubber</h1>
-        <p className="workflow-card-desc">
-          Reads a CSV and removes the specified columns before writing the output. Use it to strip{' '}
-          <strong>PII</strong> (email, phone, SSN), reduce file size, or prepare data for a
-          specific consumer that only needs a subset of fields.
-        </p>
+        <h1 className="workflow-card-title">{wt.title}</h1>
+        <p className="workflow-card-desc" dangerouslySetInnerHTML={{ __html: wt.desc }} />
         <ol className="workflow-steps">
-          <li><span className="step-badge">1</span> CsvReader — fetch CSV from URL</li>
-          <li><span className="step-badge">2</span> AttributeManager — remove specified columns</li>
-          <li><span className="step-badge">3</span> CsvWriter — write trimmed output</li>
+          {(wt.steps ?? []).map((step, i) => (
+            <li key={i}><span className="step-badge">{i + 1}</span> {step}</li>
+          ))}
         </ol>
         <LearnMore
-          problem="Datasets often contain columns that should never leave the building — PII like email and phone numbers, internal cost fields, or system metadata. Sharing a full export by mistake creates compliance and trust risks."
-          whenToUse="Preparing a dataset for external sharing, complying with data minimization requirements (GDPR, HIPAA), or reducing file size before handing off to an analytics tool that only needs a subset of fields."
-          concepts={[
-            { name: 'AttributeManager', desc: 'adds, renames, or removes columns; in remove mode it drops the named columns and passes everything else through untouched' },
-          ]}
-          inputShape="Any CSV with a header row. List the exact column names to drop — spelling and case must match the header exactly. All other columns are kept as-is."
+          problem={wt.learnMore.problem}
+          whenToUse={wt.learnMore.whenToUse}
+          concepts={wt.learnMore.concepts}
+          inputShape={wt.learnMore.inputShape}
         />
       </section>
 
       {!configured && (
         <div className="alert alert-warn">
-          <strong>Not configured.</strong> Set <code>FLOW_URL_COL_SELECT</code> (variable) and{' '}
-          <code>FLOW_API_KEY</code> (secret) in your GitHub repository settings, then redeploy.
-          For local dev, add them to <code>.env.local</code>.
+          <strong>{t.common.notConfiguredTitle}</strong>{' '}
+          <span dangerouslySetInnerHTML={{ __html: wt.alert }} />
         </div>
       )}
 
       {jobState !== 'submitted' && (
         <form className="form-card" onSubmit={handleSubmit}>
-          <h2 className="form-title">Run Workflow</h2>
+          <h2 className="form-title">{t.common.runWorkflow}</h2>
 
           <div className="field">
-            <label htmlFor="csv_path">CSV Path <span className="required">*</span></label>
+            <label htmlFor="csv_path">{wt.fields.csvPath.label} <span className="required">*</span></label>
             <input
               id="csv_path"
               name="csv_path"
@@ -95,12 +93,12 @@ export function ColumnSelectorWorkflow() {
               onChange={handleChange}
               disabled={jobState === 'submitting'}
             />
-            <span className="field-hint">URL or path to the input CSV file.</span>
+            <span className="field-hint">{wt.fields.csvPath.hint}</span>
           </div>
 
           <div className="field">
             <label htmlFor="columns_to_remove">
-              Columns to Remove <span className="required">*</span>
+              {wt.fields.columnsToRemove.label} <span className="required">*</span>
             </label>
             <input
               id="columns_to_remove"
@@ -112,13 +110,11 @@ export function ColumnSelectorWorkflow() {
               onChange={handleChange}
               disabled={jobState === 'submitting'}
             />
-            <span className="field-hint">
-              Comma-separated column names to drop. All other columns are kept as-is.
-            </span>
+            <span className="field-hint">{wt.fields.columnsToRemove.hint}</span>
           </div>
 
           <div className="field">
-            <label htmlFor="output_name">Output Name</label>
+            <label htmlFor="output_name">{wt.fields.outputName.label}</label>
             <input
               id="output_name"
               name="output_name"
@@ -128,9 +124,10 @@ export function ColumnSelectorWorkflow() {
               onChange={handleChange}
               disabled={jobState === 'submitting'}
             />
-            <span className="field-hint">
-              Output file: <code>{params.output_name || 'output'}.csv</code>
-            </span>
+            <span
+              className="field-hint"
+              dangerouslySetInnerHTML={{ __html: interp(wt.fields.outputName.hint, { name }) }}
+            />
           </div>
 
           {jobState === 'error' && error && (
@@ -142,7 +139,7 @@ export function ColumnSelectorWorkflow() {
             className="btn-primary"
             disabled={jobState === 'submitting' || !configured}
           >
-            {jobState === 'submitting' ? <><span className="spinner" /> Running…</> : 'Run Workflow'}
+            {jobState === 'submitting' ? <><span className="spinner" /> {t.common.running}</> : t.common.runWorkflow}
           </button>
         </form>
       )}

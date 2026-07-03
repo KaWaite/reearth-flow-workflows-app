@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { isWorkflowConfigured, triggerWorkflow } from '../lib/api';
+import { useT, interp } from '../i18n';
 import { JobStatus } from '../components/JobStatus';
 import { LearnMore } from '../components/LearnMore';
 import { WorkflowGraph } from '../components/WorkflowGraph';
 import type { GraphNode, GraphEdge } from '../components/WorkflowGraph';
+import type { GeoJsonParams, JobResult, JobState } from '../types';
 
 const GRAPH_NODES: GraphNode[] = [
   { id: 'reader',  label: 'GeoJsonReader',       col: 0, row: 0, type: 'source' },
@@ -20,7 +22,6 @@ const GRAPH_EDGES: GraphEdge[] = [
   { from: 'reproj', to: 'geojson' },
   { from: 'agg',    to: 'json' },
 ];
-import type { GeoJsonParams, JobResult, JobState } from '../types';
 
 const DEFAULTS: GeoJsonParams = {
   geojson_path: '',
@@ -39,6 +40,8 @@ export function GeoJsonPipelineWorkflow() {
   const [jobState, setJobState] = useState<JobState>('idle');
   const [job, setJob] = useState<JobResult | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const { t } = useT();
+  const wt = t.workflows.geoJson;
 
   const configured = isWorkflowConfigured(2);
 
@@ -72,56 +75,48 @@ export function GeoJsonPipelineWorkflow() {
     setParams(DEFAULTS);
   }
 
+  const name = params.output_name || 'analysis';
+
   return (
     <>
       <section className="workflow-card">
         <div className="workflow-card-top">
-          <span className="workflow-card-label">Workflow 2</span>
-          <a href="#" className="btn-open-flow btn-open-flow-disabled" onClick={(e) => e.preventDefault()}>Open in Flow ↗</a>
+          <span className="workflow-card-label">{t.common.workflowLabel} 2</span>
+          <a href="#" className="btn-open-flow btn-open-flow-disabled" onClick={(e) => e.preventDefault()}>{t.common.openInFlow}</a>
         </div>
-        <h1 className="workflow-card-title">GeoJSON Spatial Analysis Pipeline</h1>
-        <p className="workflow-card-desc">
-          Reads a GeoJSON file of polygon features in a metric CRS, calculates polygon areas,
-          then splits: one branch reprojects to WGS84 and writes an{' '}
-          <strong>enriched GeoJSON</strong> ready for Cesium; the other aggregates feature counts
-          by category and writes a <strong>JSON summary</strong>.
-        </p>
+        <h1 className="workflow-card-title">{wt.title}</h1>
+        <p className="workflow-card-desc" dangerouslySetInnerHTML={{ __html: wt.desc }} />
         <WorkflowGraph
           nodes={GRAPH_NODES}
           edges={GRAPH_EDGES}
           ariaLabel="GeoJSON Pipeline: GeoJsonReader to AreaCalculator, then splits into branch A (HReprojector to GeoJsonWriter) and branch B (AttrAggregator to JsonWriter)"
         />
         <LearnMore
-          problem="GIS exports use many different coordinate reference systems. Web maps (Cesium, Mapbox, Leaflet) all require WGS84 (EPSG:4326), but area calculations need a metric CRS — you can't have both in one pass without a reprojection step."
-          whenToUse="Preparing polygon layers for web visualization while also generating feature-count statistics. A common pattern when publishing city or land-use data to a web map."
-          concepts={[
-            { name: 'AreaCalculator', desc: 'computes polygon area in m² from the geometry — requires a metric projected CRS; WGS84 input will produce incorrect results' },
-            { name: 'HorizontalReprojector', desc: 'transforms coordinates from one CRS to another; here converts to EPSG:4326 for the Cesium-ready output' },
-            { name: 'AttributeAggregator', desc: 'groups features by a column and computes aggregate values — here counts features per category for the stats output' },
-          ]}
-          inputShape="GeoJSON with polygon features in a metric projected CRS (e.g. EPSG:2154, EPSG:3857, EPSG:6668). WGS84 input will produce incorrect area values. Each feature must have the category column you specify."
+          problem={wt.learnMore.problem}
+          whenToUse={wt.learnMore.whenToUse}
+          concepts={wt.learnMore.concepts}
+          inputShape={wt.learnMore.inputShape}
         />
       </section>
 
       {!configured && (
         <div className="alert alert-warn">
-          <strong>Not configured.</strong> Set <code>FLOW_URL_GEOJSON</code> (variable) and{' '}
-          <code>FLOW_API_KEY</code> (secret) in your GitHub repository settings, then redeploy.
-          For local dev, add them to <code>.env.local</code>.
+          <strong>{t.common.notConfiguredTitle}</strong>{' '}
+          <span dangerouslySetInnerHTML={{ __html: wt.alert }} />
         </div>
       )}
 
       {jobState !== 'submitted' && (
         <form className="form-card" onSubmit={handleSubmit}>
           <div className="form-title-row">
-            <h2 className="form-title">Run Workflow</h2>
+            <h2 className="form-title">{t.common.runWorkflow}</h2>
             <button type="button" className="btn-example" onClick={handleFillExample}>
-              Fill example
+              {t.common.fillExample}
             </button>
           </div>
 
           <div className="field">
-            <label htmlFor="geojson_path">GeoJSON Path <span className="required">*</span></label>
+            <label htmlFor="geojson_path">{wt.fields.geojsonPath.label} <span className="required">*</span></label>
             <input
               id="geojson_path"
               name="geojson_path"
@@ -132,15 +127,12 @@ export function GeoJsonPipelineWorkflow() {
               onChange={handleChange}
               disabled={jobState === 'submitting'}
             />
-            <span className="field-hint">
-              URL to a GeoJSON file with polygon features in a metric CRS (e.g. EPSG:2154, 3857).
-              The workflow reprojects to WGS84 (EPSG:4326) for the Cesium output.
-            </span>
+            <span className="field-hint">{wt.fields.geojsonPath.hint}</span>
           </div>
 
           <div className="field">
             <label htmlFor="category_column">
-              Category Column <span className="required">*</span>
+              {wt.fields.categoryColumn.label} <span className="required">*</span>
             </label>
             <input
               id="category_column"
@@ -152,13 +144,11 @@ export function GeoJsonPipelineWorkflow() {
               onChange={handleChange}
               disabled={jobState === 'submitting'}
             />
-            <span className="field-hint">
-              Features are grouped by this attribute when counting. Must exist on every feature.
-            </span>
+            <span className="field-hint">{wt.fields.categoryColumn.hint}</span>
           </div>
 
           <div className="field">
-            <label htmlFor="output_name">Output Name</label>
+            <label htmlFor="output_name">{wt.fields.outputName.label}</label>
             <input
               id="output_name"
               name="output_name"
@@ -168,10 +158,10 @@ export function GeoJsonPipelineWorkflow() {
               onChange={handleChange}
               disabled={jobState === 'submitting'}
             />
-            <span className="field-hint">
-              Output files: <code>{params.output_name || 'analysis'}.geojson</code> and{' '}
-              <code>{params.output_name || 'analysis'}_stats.json</code>
-            </span>
+            <span
+              className="field-hint"
+              dangerouslySetInnerHTML={{ __html: interp(wt.fields.outputName.hint, { name }) }}
+            />
           </div>
 
           {jobState === 'error' && error && (
@@ -183,7 +173,7 @@ export function GeoJsonPipelineWorkflow() {
             className="btn-primary"
             disabled={jobState === 'submitting' || !configured}
           >
-            {jobState === 'submitting' ? <><span className="spinner" /> Running…</> : 'Run Workflow'}
+            {jobState === 'submitting' ? <><span className="spinner" /> {t.common.running}</> : t.common.runWorkflow}
           </button>
         </form>
       )}

@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { isWorkflowConfigured, triggerWorkflow } from '../lib/api';
+import { useT, interp } from '../i18n';
 import { JobStatus } from '../components/JobStatus';
 import { LearnMore } from '../components/LearnMore';
 import { WorkflowGraph } from '../components/WorkflowGraph';
 import type { GraphNode, GraphEdge } from '../components/WorkflowGraph';
+import type { CsvQualityParams, JobResult, JobState } from '../types';
 
 const GRAPH_NODES: GraphNode[] = [
   { id: 'reader',   label: 'CsvReader',        col: 0, row: 0, type: 'source' },
@@ -18,7 +20,6 @@ const GRAPH_EDGES: GraphEdge[] = [
   { from: 'filter', to: 'rejected', label: 'unfiltered' },
   { from: 'attr',   to: 'clean' },
 ];
-import type { CsvQualityParams, JobResult, JobState } from '../types';
 
 const DEFAULTS: CsvQualityParams = {
   csv_path: '',
@@ -37,6 +38,8 @@ export function CsvQualityWorkflow() {
   const [jobState, setJobState] = useState<JobState>('idle');
   const [job, setJob] = useState<JobResult | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const { t } = useT();
+  const wt = t.workflows.csvQuality;
 
   const configured = isWorkflowConfigured(1);
 
@@ -69,55 +72,48 @@ export function CsvQualityWorkflow() {
     setParams(EXAMPLE);
   }
 
+  const prefix = params.output_prefix || 'output';
+
   return (
     <>
       <section className="workflow-card">
         <div className="workflow-card-top">
-          <span className="workflow-card-label">Workflow 1</span>
-          <a href="#" className="btn-open-flow btn-open-flow-disabled" onClick={(e) => e.preventDefault()}>Open in Flow ↗</a>
+          <span className="workflow-card-label">{t.common.workflowLabel} 1</span>
+          <a href="#" className="btn-open-flow btn-open-flow-disabled" onClick={(e) => e.preventDefault()}>{t.common.openInFlow}</a>
         </div>
-        <h1 className="workflow-card-title">CSV Data Quality Pipeline</h1>
-        <p className="workflow-card-desc">
-          Reads a CSV from a URL, splits rows into <strong>valid</strong> and{' '}
-          <strong>rejected</strong> based on a required key column, enriches valid rows with a
-          processed timestamp, and writes two output files: a clean CSV and a rejection log.
-        </p>
+        <h1 className="workflow-card-title">{wt.title}</h1>
+        <p className="workflow-card-desc" dangerouslySetInnerHTML={{ __html: wt.desc }} />
         <WorkflowGraph
           nodes={GRAPH_NODES}
           edges={GRAPH_EDGES}
           ariaLabel="CSV Quality workflow: CsvReader feeds FeatureFilter which routes valid rows through AttributeManager to a clean CsvWriter, and unfiltered rows directly to a rejected CsvWriter"
         />
         <LearnMore
-          problem="Raw data almost always arrives dirty — missing IDs, blank required fields, inconsistent formatting. Loading it straight into a database or passing it downstream propagates those errors silently."
-          whenToUse="Validating vendor or form exports before ingestion. Any time you need a clean output file and a separate rejection log as two distinct deliverables."
-          concepts={[
-            { name: 'FeatureFilter', desc: 'routes rows to named output ports using a FlowExpr condition — rows where the key column is non-null go to valid, the rest to unfiltered' },
-            { name: 'AttributeManager', desc: 'adds, modifies, or removes columns — here it stamps a processed_at value on every valid row' },
-            { name: 'CsvWriter', desc: 'writes a feature stream to a CSV file; used twice to produce the clean output and rejection log independently' },
-          ]}
-          inputShape="Any CSV with a header row. Designate one column as the required key — rows where it is null or empty are routed to the rejection log. All other columns pass through unchanged."
+          problem={wt.learnMore.problem}
+          whenToUse={wt.learnMore.whenToUse}
+          concepts={wt.learnMore.concepts}
+          inputShape={wt.learnMore.inputShape}
         />
       </section>
 
       {!configured && (
         <div className="alert alert-warn">
-          <strong>Not configured.</strong> Set <code>FLOW_URL_CSV_QUALITY</code> (variable) and{' '}
-          <code>FLOW_API_KEY</code> (secret) in your GitHub repository settings, then redeploy.
-          For local dev, add them to <code>.env.local</code>.
+          <strong>{t.common.notConfiguredTitle}</strong>{' '}
+          <span dangerouslySetInnerHTML={{ __html: wt.alert }} />
         </div>
       )}
 
       {jobState !== 'submitted' && (
         <form className="form-card" onSubmit={handleSubmit}>
           <div className="form-title-row">
-            <h2 className="form-title">Run Workflow</h2>
+            <h2 className="form-title">{t.common.runWorkflow}</h2>
             <button type="button" className="btn-example" onClick={handleFillExample}>
-              Fill example
+              {t.common.fillExample}
             </button>
           </div>
 
           <div className="field">
-            <label htmlFor="csv_path">CSV Path <span className="required">*</span></label>
+            <label htmlFor="csv_path">{wt.fields.csvPath.label} <span className="required">*</span></label>
             <input
               id="csv_path"
               name="csv_path"
@@ -128,11 +124,11 @@ export function CsvQualityWorkflow() {
               onChange={handleChange}
               disabled={jobState === 'submitting'}
             />
-            <span className="field-hint">URL or path to the input CSV file.</span>
+            <span className="field-hint">{wt.fields.csvPath.hint}</span>
           </div>
 
           <div className="field">
-            <label htmlFor="key_column">Key Column <span className="required">*</span></label>
+            <label htmlFor="key_column">{wt.fields.keyColumn.label} <span className="required">*</span></label>
             <input
               id="key_column"
               name="key_column"
@@ -143,11 +139,11 @@ export function CsvQualityWorkflow() {
               onChange={handleChange}
               disabled={jobState === 'submitting'}
             />
-            <span className="field-hint">Rows where this column is null or empty are rejected.</span>
+            <span className="field-hint">{wt.fields.keyColumn.hint}</span>
           </div>
 
           <div className="field">
-            <label htmlFor="output_prefix">Output Prefix</label>
+            <label htmlFor="output_prefix">{wt.fields.outputPrefix.label}</label>
             <input
               id="output_prefix"
               name="output_prefix"
@@ -157,10 +153,10 @@ export function CsvQualityWorkflow() {
               onChange={handleChange}
               disabled={jobState === 'submitting'}
             />
-            <span className="field-hint">
-              Output files: <code>{params.output_prefix || 'output'}_clean.csv</code> and{' '}
-              <code>{params.output_prefix || 'output'}_rejected.csv</code>
-            </span>
+            <span
+              className="field-hint"
+              dangerouslySetInnerHTML={{ __html: interp(wt.fields.outputPrefix.hint, { prefix }) }}
+            />
           </div>
 
           {jobState === 'error' && error && (
@@ -172,7 +168,7 @@ export function CsvQualityWorkflow() {
             className="btn-primary"
             disabled={jobState === 'submitting' || !configured}
           >
-            {jobState === 'submitting' ? <><span className="spinner" /> Running…</> : 'Run Workflow'}
+            {jobState === 'submitting' ? <><span className="spinner" /> {t.common.running}</> : t.common.runWorkflow}
           </button>
         </form>
       )}

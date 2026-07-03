@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { isWorkflowConfigured, triggerWorkflow } from '../lib/api';
+import { useT, interp } from '../i18n';
 import { JobStatus } from '../components/JobStatus';
 import { LearnMore } from '../components/LearnMore';
 import { WorkflowGraph } from '../components/WorkflowGraph';
 import type { GraphNode, GraphEdge } from '../components/WorkflowGraph';
+import type { CsvSplitParams, JobResult, JobState } from '../types';
 
 const GRAPH_NODES: GraphNode[] = [
   { id: 'reader',  label: 'CsvReader',     col: 0, row: 1, type: 'source' },
@@ -18,7 +20,6 @@ const GRAPH_EDGES: GraphEdge[] = [
   { from: 'filter',  to: 'writerB', label: 'cat B' },
   { from: 'filter',  to: 'writerC', label: 'other' },
 ];
-import type { CsvSplitParams, JobResult, JobState } from '../types';
 
 const DEFAULTS: CsvSplitParams = {
   csv_path: '',
@@ -31,6 +32,8 @@ export function CsvSplitWorkflow() {
   const [jobState, setJobState] = useState<JobState>('idle');
   const [job, setJob] = useState<JobResult | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const { t } = useT();
+  const wt = t.workflows.csvSplit;
 
   const configured = isWorkflowConfigured(5);
 
@@ -59,48 +62,43 @@ export function CsvSplitWorkflow() {
     setParams(DEFAULTS);
   }
 
+  const prefix = params.output_prefix || 'split';
+
   return (
     <>
       <section className="workflow-card">
         <div className="workflow-card-top">
-          <span className="workflow-card-label">Workflow 5</span>
-          <a href="#" className="btn-open-flow btn-open-flow-disabled" onClick={(e) => e.preventDefault()}>Open in Flow ↗</a>
+          <span className="workflow-card-label">{t.common.workflowLabel} 5</span>
+          <a href="#" className="btn-open-flow btn-open-flow-disabled" onClick={(e) => e.preventDefault()}>{t.common.openInFlow}</a>
         </div>
-        <h1 className="workflow-card-title">Split Dataset by Category</h1>
-        <p className="workflow-card-desc">
-          Routes rows from a single CSV into <strong>separate output files</strong> based on the
-          value of a category column — one file per category. Useful for splitting sales data by
-          region, records by year, or any dataset segmented by a known attribute.
-        </p>
+        <h1 className="workflow-card-title">{wt.title}</h1>
+        <p className="workflow-card-desc" dangerouslySetInnerHTML={{ __html: wt.desc }} />
         <WorkflowGraph
           nodes={GRAPH_NODES}
           edges={GRAPH_EDGES}
           ariaLabel="CSV Split workflow: CsvReader feeds FeatureFilter which fans out to separate CsvWriter nodes for category A, category B, and a catch-all"
         />
         <LearnMore
-          problem="A single combined export needs to be split into separate files for different consumers — regional teams each want their own slice, or a downstream system expects one file per category."
-          whenToUse="Splitting a master sales file by territory, segmenting event logs by severity level, or partitioning a dataset for per-team delivery without manual filtering in a spreadsheet."
-          concepts={[
-            { name: 'FeatureFilter', desc: 'routes rows to named output ports based on a FlowExpr condition; each port maps to a separate CsvWriter — the category values and port count are fixed at workflow build time' },
-          ]}
-          inputShape="A CSV with a column whose values match the categories configured in the workflow. Rows that do not match any configured category are routed to a catch-all output. The category column must be consistent — misspellings or unexpected values go to the catch-all."
+          problem={wt.learnMore.problem}
+          whenToUse={wt.learnMore.whenToUse}
+          concepts={wt.learnMore.concepts}
+          inputShape={wt.learnMore.inputShape}
         />
       </section>
 
       {!configured && (
         <div className="alert alert-warn">
-          <strong>Not configured.</strong> Set <code>FLOW_URL_CSV_SPLIT</code> (variable) and{' '}
-          <code>FLOW_API_KEY</code> (secret) in your GitHub repository settings, then redeploy.
-          For local dev, add them to <code>.env.local</code>.
+          <strong>{t.common.notConfiguredTitle}</strong>{' '}
+          <span dangerouslySetInnerHTML={{ __html: wt.alert }} />
         </div>
       )}
 
       {jobState !== 'submitted' && (
         <form className="form-card" onSubmit={handleSubmit}>
-          <h2 className="form-title">Run Workflow</h2>
+          <h2 className="form-title">{t.common.runWorkflow}</h2>
 
           <div className="field">
-            <label htmlFor="csv_path">CSV Path <span className="required">*</span></label>
+            <label htmlFor="csv_path">{wt.fields.csvPath.label} <span className="required">*</span></label>
             <input
               id="csv_path"
               name="csv_path"
@@ -111,12 +109,12 @@ export function CsvSplitWorkflow() {
               onChange={handleChange}
               disabled={jobState === 'submitting'}
             />
-            <span className="field-hint">URL or path to the input CSV file.</span>
+            <span className="field-hint">{wt.fields.csvPath.hint}</span>
           </div>
 
           <div className="field">
             <label htmlFor="category_column">
-              Category Column <span className="required">*</span>
+              {wt.fields.categoryColumn.label} <span className="required">*</span>
             </label>
             <input
               id="category_column"
@@ -128,15 +126,11 @@ export function CsvSplitWorkflow() {
               onChange={handleChange}
               disabled={jobState === 'submitting'}
             />
-            <span className="field-hint">
-              Column whose values determine which output file each row goes to. The set of
-              categories is defined in the workflow — rows not matching any category go to a
-              catch-all file.
-            </span>
+            <span className="field-hint">{wt.fields.categoryColumn.hint}</span>
           </div>
 
           <div className="field">
-            <label htmlFor="output_prefix">Output Prefix</label>
+            <label htmlFor="output_prefix">{wt.fields.outputPrefix.label}</label>
             <input
               id="output_prefix"
               name="output_prefix"
@@ -146,9 +140,10 @@ export function CsvSplitWorkflow() {
               onChange={handleChange}
               disabled={jobState === 'submitting'}
             />
-            <span className="field-hint">
-              Output files: <code>{params.output_prefix || 'split'}_&lt;category&gt;.csv</code>
-            </span>
+            <span
+              className="field-hint"
+              dangerouslySetInnerHTML={{ __html: interp(wt.fields.outputPrefix.hint, { prefix }) }}
+            />
           </div>
 
           {jobState === 'error' && error && (
@@ -160,7 +155,7 @@ export function CsvSplitWorkflow() {
             className="btn-primary"
             disabled={jobState === 'submitting' || !configured}
           >
-            {jobState === 'submitting' ? <><span className="spinner" /> Running…</> : 'Run Workflow'}
+            {jobState === 'submitting' ? <><span className="spinner" /> {t.common.running}</> : t.common.runWorkflow}
           </button>
         </form>
       )}

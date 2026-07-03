@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { isWorkflowConfigured, triggerWorkflow } from '../lib/api';
+import { useT, interp } from '../i18n';
 import { JobStatus } from '../components/JobStatus';
 import { LearnMore } from '../components/LearnMore';
 import type { CsvMergeParams, JobResult, JobState } from '../types';
@@ -16,6 +17,8 @@ export function CsvMergeWorkflow() {
   const [jobState, setJobState] = useState<JobState>('idle');
   const [job, setJob] = useState<JobResult | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const { t } = useT();
+  const wt = t.workflows.csvMerge;
 
   const configured = isWorkflowConfigured(3);
 
@@ -44,53 +47,43 @@ export function CsvMergeWorkflow() {
     setParams(DEFAULTS);
   }
 
+  const prefix = params.output_prefix || 'merged';
+
   return (
     <>
       <section className="workflow-card">
         <div className="workflow-card-top">
-          <span className="workflow-card-label">Workflow 3</span>
-          <a href="#" className="btn-open-flow btn-open-flow-disabled" onClick={(e) => e.preventDefault()}>Open in Flow ↗</a>
+          <span className="workflow-card-label">{t.common.workflowLabel} 3</span>
+          <a href="#" className="btn-open-flow btn-open-flow-disabled" onClick={(e) => e.preventDefault()}>{t.common.openInFlow}</a>
         </div>
-        <h1 className="workflow-card-title">Multi-source CSV Merge &amp; Dedup</h1>
-        <p className="workflow-card-desc">
-          Reads two CSV files from separate URLs, merges them into a single feature stream,
-          removes duplicate records based on a key column, normalizes column names, and writes
-          one <strong>unified, deduplicated CSV</strong>. Essential for combining vendor exports
-          or reconciling data from multiple systems.
-        </p>
+        <h1 className="workflow-card-title">{wt.title}</h1>
+        <p className="workflow-card-desc" dangerouslySetInnerHTML={{ __html: wt.desc }} />
         <ol className="workflow-steps">
-          <li><span className="step-badge">1</span> CsvReader ×2 — read both source files</li>
-          <li><span className="step-badge">2</span> FeatureMerger — combine into one stream</li>
-          <li><span className="step-badge">3</span> AttributeDuplicateFilter — remove duplicates by key</li>
-          <li><span className="step-badge">4</span> AttributeRenamer — normalize column names</li>
-          <li><span className="step-badge">5</span> CsvWriter — single unified output</li>
+          {(wt.steps ?? []).map((step, i) => (
+            <li key={i}><span className="step-badge">{i + 1}</span> {step}</li>
+          ))}
         </ol>
         <LearnMore
-          problem="The same entity often lives in two separate system exports — one record per system, with duplicates and slightly different column names. Manual reconciliation in a spreadsheet is slow and error-prone at scale."
-          whenToUse="Reconciling CRM and billing exports, combining weekly snapshots from two departments, or merging data collected from two independent sources before loading into a database."
-          concepts={[
-            { name: 'FeatureMerger', desc: 'combines two separate feature streams into one — the equivalent of a SQL UNION ALL' },
-            { name: 'AttributeDuplicateFilter', desc: 'keeps only the first occurrence of each unique key value, discarding later duplicates — first-occurrence wins' },
-            { name: 'AttributeRenamer', desc: 'renames columns to a consistent schema, useful when the two source files use different names for the same field' },
-          ]}
-          inputShape="Two CSVs that share a common key column (e.g. id, email). The schemas do not need to be identical — columns present in only one source are kept as-is. The key column must contain values that uniquely identify each record."
+          problem={wt.learnMore.problem}
+          whenToUse={wt.learnMore.whenToUse}
+          concepts={wt.learnMore.concepts}
+          inputShape={wt.learnMore.inputShape}
         />
       </section>
 
       {!configured && (
         <div className="alert alert-warn">
-          <strong>Not configured.</strong> Set <code>FLOW_URL_CSV_MERGE</code> (variable) and{' '}
-          <code>FLOW_API_KEY</code> (secret) in your GitHub repository settings, then redeploy.
-          For local dev, add them to <code>.env.local</code>.
+          <strong>{t.common.notConfiguredTitle}</strong>{' '}
+          <span dangerouslySetInnerHTML={{ __html: wt.alert }} />
         </div>
       )}
 
       {jobState !== 'submitted' && (
         <form className="form-card" onSubmit={handleSubmit}>
-          <h2 className="form-title">Run Workflow</h2>
+          <h2 className="form-title">{t.common.runWorkflow}</h2>
 
           <div className="field">
-            <label htmlFor="csv_path_1">Source A Path <span className="required">*</span></label>
+            <label htmlFor="csv_path_1">{wt.fields.csvPath1.label} <span className="required">*</span></label>
             <input
               id="csv_path_1"
               name="csv_path_1"
@@ -101,11 +94,11 @@ export function CsvMergeWorkflow() {
               onChange={handleChange}
               disabled={jobState === 'submitting'}
             />
-            <span className="field-hint">First CSV source file.</span>
+            <span className="field-hint">{wt.fields.csvPath1.hint}</span>
           </div>
 
           <div className="field">
-            <label htmlFor="csv_path_2">Source B Path <span className="required">*</span></label>
+            <label htmlFor="csv_path_2">{wt.fields.csvPath2.label} <span className="required">*</span></label>
             <input
               id="csv_path_2"
               name="csv_path_2"
@@ -116,11 +109,11 @@ export function CsvMergeWorkflow() {
               onChange={handleChange}
               disabled={jobState === 'submitting'}
             />
-            <span className="field-hint">Second CSV source file.</span>
+            <span className="field-hint">{wt.fields.csvPath2.hint}</span>
           </div>
 
           <div className="field">
-            <label htmlFor="dedup_key">Dedup Key Column <span className="required">*</span></label>
+            <label htmlFor="dedup_key">{wt.fields.dedupKey.label} <span className="required">*</span></label>
             <input
               id="dedup_key"
               name="dedup_key"
@@ -131,14 +124,11 @@ export function CsvMergeWorkflow() {
               onChange={handleChange}
               disabled={jobState === 'submitting'}
             />
-            <span className="field-hint">
-              Rows with the same value in this column are considered duplicates; only the first
-              occurrence is kept.
-            </span>
+            <span className="field-hint">{wt.fields.dedupKey.hint}</span>
           </div>
 
           <div className="field">
-            <label htmlFor="output_prefix">Output Prefix</label>
+            <label htmlFor="output_prefix">{wt.fields.outputPrefix.label}</label>
             <input
               id="output_prefix"
               name="output_prefix"
@@ -148,9 +138,10 @@ export function CsvMergeWorkflow() {
               onChange={handleChange}
               disabled={jobState === 'submitting'}
             />
-            <span className="field-hint">
-              Output file: <code>{params.output_prefix || 'merged'}.csv</code>
-            </span>
+            <span
+              className="field-hint"
+              dangerouslySetInnerHTML={{ __html: interp(wt.fields.outputPrefix.hint, { prefix }) }}
+            />
           </div>
 
           {jobState === 'error' && error && (
@@ -162,7 +153,7 @@ export function CsvMergeWorkflow() {
             className="btn-primary"
             disabled={jobState === 'submitting' || !configured}
           >
-            {jobState === 'submitting' ? <><span className="spinner" /> Running…</> : 'Run Workflow'}
+            {jobState === 'submitting' ? <><span className="spinner" /> {t.common.running}</> : t.common.runWorkflow}
           </button>
         </form>
       )}

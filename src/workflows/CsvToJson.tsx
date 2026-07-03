@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { isWorkflowConfigured, triggerWorkflow } from '../lib/api';
+import { useT, interp } from '../i18n';
 import { JobStatus } from '../components/JobStatus';
 import { LearnMore } from '../components/LearnMore';
 import type { CsvToJsonParams, JobResult, JobState } from '../types';
@@ -14,6 +15,8 @@ export function CsvToJsonWorkflow() {
   const [jobState, setJobState] = useState<JobState>('idle');
   const [job, setJob] = useState<JobResult | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const { t } = useT();
+  const wt = t.workflows.csvToJson;
 
   const configured = isWorkflowConfigured(6);
 
@@ -42,48 +45,43 @@ export function CsvToJsonWorkflow() {
     setParams(DEFAULTS);
   }
 
+  const name = params.output_name || 'output';
+
   return (
     <>
       <section className="workflow-card">
         <div className="workflow-card-top">
-          <span className="workflow-card-label">Workflow 6</span>
-          <a href="#" className="btn-open-flow btn-open-flow-disabled" onClick={(e) => e.preventDefault()}>Open in Flow ↗</a>
+          <span className="workflow-card-label">{t.common.workflowLabel} 6</span>
+          <a href="#" className="btn-open-flow btn-open-flow-disabled" onClick={(e) => e.preventDefault()}>{t.common.openInFlow}</a>
         </div>
-        <h1 className="workflow-card-title">CSV to JSON</h1>
-        <p className="workflow-card-desc">
-          Converts a CSV table into a <strong>JSON array of objects</strong> — one object per row,
-          keys from the header. The go-to handoff when feeding spreadsheet data into a web
-          application, API, or any system that expects JSON.
-        </p>
+        <h1 className="workflow-card-title">{wt.title}</h1>
+        <p className="workflow-card-desc" dangerouslySetInnerHTML={{ __html: wt.desc }} />
         <ol className="workflow-steps">
-          <li><span className="step-badge">1</span> CsvReader — fetch CSV from URL</li>
-          <li><span className="step-badge">2</span> JsonWriter — write rows as JSON array</li>
+          {(wt.steps ?? []).map((step, i) => (
+            <li key={i}><span className="step-badge">{i + 1}</span> {step}</li>
+          ))}
         </ol>
         <LearnMore
-          problem="Spreadsheet data is ubiquitous but most web applications, APIs, and no-code tools expect JSON. Manual copy-paste or Excel export is error-prone and does not scale."
-          whenToUse="Feeding tabular data into a JavaScript front-end, preparing a dataset for a REST API, or converting a report for consumption by a tool that only reads JSON."
-          concepts={[
-            { name: 'CsvReader', desc: 'parses the header row as attribute keys and each data row as a feature — the simplest source action in Flow' },
-            { name: 'JsonWriter', desc: 'emits features as a JSON array of objects, one object per row; this two-node pipeline is the most minimal workflow in Flow' },
-          ]}
-          inputShape="Any CSV with a header row. Every column becomes a JSON key; every row becomes an object. Numeric strings are kept as strings — Flow does not coerce types during CSV parsing."
+          problem={wt.learnMore.problem}
+          whenToUse={wt.learnMore.whenToUse}
+          concepts={wt.learnMore.concepts}
+          inputShape={wt.learnMore.inputShape}
         />
       </section>
 
       {!configured && (
         <div className="alert alert-warn">
-          <strong>Not configured.</strong> Set <code>FLOW_URL_CSV_JSON</code> (variable) and{' '}
-          <code>FLOW_API_KEY</code> (secret) in your GitHub repository settings, then redeploy.
-          For local dev, add them to <code>.env.local</code>.
+          <strong>{t.common.notConfiguredTitle}</strong>{' '}
+          <span dangerouslySetInnerHTML={{ __html: wt.alert }} />
         </div>
       )}
 
       {jobState !== 'submitted' && (
         <form className="form-card" onSubmit={handleSubmit}>
-          <h2 className="form-title">Run Workflow</h2>
+          <h2 className="form-title">{t.common.runWorkflow}</h2>
 
           <div className="field">
-            <label htmlFor="csv_path">CSV Path <span className="required">*</span></label>
+            <label htmlFor="csv_path">{wt.fields.csvPath.label} <span className="required">*</span></label>
             <input
               id="csv_path"
               name="csv_path"
@@ -94,11 +92,11 @@ export function CsvToJsonWorkflow() {
               onChange={handleChange}
               disabled={jobState === 'submitting'}
             />
-            <span className="field-hint">URL or path to the input CSV file.</span>
+            <span className="field-hint">{wt.fields.csvPath.hint}</span>
           </div>
 
           <div className="field">
-            <label htmlFor="output_name">Output Name</label>
+            <label htmlFor="output_name">{wt.fields.outputName.label}</label>
             <input
               id="output_name"
               name="output_name"
@@ -108,9 +106,10 @@ export function CsvToJsonWorkflow() {
               onChange={handleChange}
               disabled={jobState === 'submitting'}
             />
-            <span className="field-hint">
-              Output file: <code>{params.output_name || 'output'}.json</code>
-            </span>
+            <span
+              className="field-hint"
+              dangerouslySetInnerHTML={{ __html: interp(wt.fields.outputName.hint, { name }) }}
+            />
           </div>
 
           {jobState === 'error' && error && (
@@ -122,7 +121,7 @@ export function CsvToJsonWorkflow() {
             className="btn-primary"
             disabled={jobState === 'submitting' || !configured}
           >
-            {jobState === 'submitting' ? <><span className="spinner" /> Running…</> : 'Run Workflow'}
+            {jobState === 'submitting' ? <><span className="spinner" /> {t.common.running}</> : t.common.runWorkflow}
           </button>
         </form>
       )}
