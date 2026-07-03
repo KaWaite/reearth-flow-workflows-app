@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { isWorkflowConfigured, TRIGGER_VAR_NAMES } from './lib/api';
 import { useT } from './i18n';
 import { SetupGuide } from './components/SetupGuide';
+import { FlowLogo } from './components/FlowLogo';
 import { CsvQualityWorkflow } from './workflows/CsvQuality';
 import { GeoJsonPipelineWorkflow } from './workflows/GeoJsonPipeline';
 import { CsvMergeWorkflow } from './workflows/CsvMerge';
@@ -24,7 +25,7 @@ export default function App() {
       <header className="header">
         <div className="header-inner">
           <div className="header-brand">
-            <span className="header-icon">⚙</span>
+            <FlowLogo className="header-logo" />
             <span className="header-title">{t.header.title}</span>
           </div>
           <span className="header-badge">{t.header.badge}</span>
