@@ -24,7 +24,8 @@ const GRAPH_EDGES: GraphEdge[] = [
 const DEFAULTS: CsvSplitParams = {
   csv_path: '',
   category_column: '',
-  output_prefix: 'split',
+  value_a: '',
+  value_b: '',
 };
 
 export function CsvSplitWorkflow() {
@@ -62,8 +63,6 @@ export function CsvSplitWorkflow() {
     setError(null);
     setParams(DEFAULTS);
   }
-
-  const prefix = params.output_prefix || 'split';
 
   return (
     <>
@@ -132,21 +131,36 @@ export function CsvSplitWorkflow() {
             />
             <span className="field-hint">{wt.fields.categoryColumn.hint}</span>
           </div>
-
-          <div className="field">
-            <label htmlFor="output_prefix">{wt.fields.outputPrefix.label}</label>
+    <div className="field">
+            <label htmlFor="value_a">{wt.fields.valueA.label}</label>
             <input
-              id="output_prefix"
-              name="output_prefix"
+              id="value_a"
+              name="value_a"
               type="text"
               placeholder="split"
-              value={params.output_prefix}
+              value={params.value_a}
               onChange={handleChange}
               disabled={jobState === 'submitting'}
             />
             <span
               className="field-hint"
-              dangerouslySetInnerHTML={{ __html: interp(wt.fields.outputPrefix.hint, { prefix }) }}
+              dangerouslySetInnerHTML={{ __html: interp(wt.fields.valueA.hint, { prefix: params.value_a || 'split' }) }}
+            />
+          </div>
+          <div className="field">
+            <label htmlFor="value_b">{wt.fields.valueB.label}</label>
+            <input
+              id="value_b"
+              name="value_b"
+              type="text"
+              placeholder="split"
+              value={params.value_b}
+              onChange={handleChange}
+              disabled={jobState === 'submitting'}
+            />
+            <span
+              className="field-hint"
+              dangerouslySetInnerHTML={{ __html: interp(wt.fields.valueB.hint, { prefix: params.value_b || 'split' }) }}
             />
           </div>
 

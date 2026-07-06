@@ -310,10 +310,14 @@ export const en: Translations = {
           label: "Category Column",
           hint: "Column whose values determine which output file each row goes to. The set of categories is defined in the workflow — rows not matching any category go to a catch-all file.",
         },
-        outputPrefix: {
-          label: "Output Prefix",
-          hint: "Output files: <code>{prefix}_&lt;category&gt;.csv</code>",
+        valueA: {
+          label: "Value A",
+          hint: "Rows where the category column equals this value go to output A.",
         },
+        valueB: {
+          label: "Value B",
+          hint: "Rows where the category column equals this value go to output B.",
+        }
       },
       alert:
         "Set <code>FLOW_URL_CSV_SPLIT</code> (variable) and <code>FLOW_API_KEY</code> (secret) in your GitHub repository settings, then redeploy. For local dev, add them to <code>.env.local</code>.",

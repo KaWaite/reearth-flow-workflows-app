@@ -271,15 +271,22 @@ export const ja: Translations = {
           "ワークフローで設定されたカテゴリに一致する値を持つ列を含むCSV。設定されたカテゴリに一致しない行はキャッチオール出力にルーティングされます。カテゴリ列は一貫している必要があります — スペルミスや予期しない値はキャッチオールへ。",
       },
       fields: {
-        csvPath: { label: "CSVパス", hint: "入力CSVファイルのURLまたはパス。" },
+        csvPath: {
+          label: "CSVパス",
+          hint: "入力CSVファイルのURLまたはパス。",
+        },
         categoryColumn: {
           label: "カテゴリ列",
           hint: "行の出力先ファイルを決定する値を持つ列。カテゴリのセットはワークフローで定義されます — どのカテゴリにも一致しない行はキャッチオールファイルへ。",
         },
-        outputPrefix: {
-          label: "出力プレフィックス",
-          hint: "出力ファイル： <code>{prefix}_&lt;カテゴリ&gt;.csv</code>",
+        valueA: {
+          label: "値A",
+          hint: "カテゴリ列の値がこの値と一致する行は出力Aに送られます。",
         },
+        valueB: {
+          label: "値B",
+          hint: "カテゴリ列の値がこの値と一致する行は出力Bに送られます。",
+        }
       },
       alert:
         "<code>FLOW_URL_CSV_SPLIT</code>（変数）と<code>FLOW_API_KEY</code>（シークレット）をGitHubリポジトリのSettings（Settings → Secrets and variables → Actions）に追加してから、再デプロイしてください。ローカル開発の場合は<code>.env.local</code>に追加してください。",
