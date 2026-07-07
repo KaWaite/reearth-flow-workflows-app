@@ -24,6 +24,16 @@ const GRAPH_EDGES: GraphEdge[] = [
 const DEFAULTS: CsvSplitParams = {
   csv_path: '',
   category_column: '',
+  value_a: '',
+  value_b: '',
+  output_prefix: 'split',
+};
+
+const EXAMPLE: CsvSplitParams = {
+  csv_path: 'https://api.flow.reearth.io/assets/01kwxfey4a01tk6x2h7wkpxkw4.csv',
+  category_column: 'Year',
+  value_a: '2019',
+  value_b: '2020',
   output_prefix: 'split',
 };
 
@@ -63,7 +73,13 @@ export function CsvSplitWorkflow() {
     setParams(DEFAULTS);
   }
 
+  function handleFillExample() {
+    setParams(EXAMPLE);
+  }
+
   const prefix = params.output_prefix || 'split';
+  const valueA = params.value_a || 'A';
+  const valueB = params.value_b || 'B';
 
   return (
     <>
@@ -99,7 +115,12 @@ export function CsvSplitWorkflow() {
 
       {jobState !== 'submitted' && (
         <form className="form-card" onSubmit={handleSubmit}>
-          <h2 className="form-title">{t.common.runWorkflow}</h2>
+          <div className="form-title-row">
+            <h2 className="form-title">{t.common.runWorkflow}</h2>
+            <button type="button" className="btn-example" onClick={handleFillExample}>
+              {t.common.fillExample}
+            </button>
+          </div>
 
           <div className="field">
             <label htmlFor="csv_path">{wt.fields.csvPath.label} <span className="required">*</span></label>
@@ -134,6 +155,36 @@ export function CsvSplitWorkflow() {
           </div>
 
           <div className="field">
+            <label htmlFor="value_a">{wt.fields.valueA.label} <span className="required">*</span></label>
+            <input
+              id="value_a"
+              name="value_a"
+              type="text"
+              required
+              placeholder="2019"
+              value={params.value_a}
+              onChange={handleChange}
+              disabled={jobState === 'submitting'}
+            />
+            <span className="field-hint">{wt.fields.valueA.hint}</span>
+          </div>
+
+          <div className="field">
+            <label htmlFor="value_b">{wt.fields.valueB.label} <span className="required">*</span></label>
+            <input
+              id="value_b"
+              name="value_b"
+              type="text"
+              required
+              placeholder="2020"
+              value={params.value_b}
+              onChange={handleChange}
+              disabled={jobState === 'submitting'}
+            />
+            <span className="field-hint">{wt.fields.valueB.hint}</span>
+          </div>
+
+          <div className="field">
             <label htmlFor="output_prefix">{wt.fields.outputPrefix.label}</label>
             <input
               id="output_prefix"
@@ -146,7 +197,7 @@ export function CsvSplitWorkflow() {
             />
             <span
               className="field-hint"
-              dangerouslySetInnerHTML={{ __html: interp(wt.fields.outputPrefix.hint, { prefix }) }}
+              dangerouslySetInnerHTML={{ __html: interp(wt.fields.outputPrefix.hint, { prefix, valueA, valueB }) }}
             />
           </div>
 

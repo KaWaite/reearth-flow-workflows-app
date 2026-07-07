@@ -264,21 +264,29 @@ export const ja: Translations = {
         concepts: [
           {
             name: "FeatureFilter",
-            desc: "FlowExpr条件に基づいて行を名前付き出力ポートにルーティングします。各ポートは個別のCsvWriterに対応します — カテゴリ値とポート数はワークフロービルド時に固定されます",
+            desc: "FlowExpr条件に基づいて行を名前付き出力ポートにルーティングします。各ポートは個別のCsvWriterに対応します — value_aとvalue_bはトリガー時に渡されるため、同一ワークフローで任意の2カテゴリ分割に対応できます",
           },
         ],
         inputShape:
-          "ワークフローで設定されたカテゴリに一致する値を持つ列を含むCSV。設定されたカテゴリに一致しない行はキャッチオール出力にルーティングされます。カテゴリ列は一貫している必要があります — スペルミスや予期しない値はキャッチオールへ。",
+          "指定した2つのカテゴリ値を含む列を持つCSV。value_aに一致する行は1つのファイルへ、value_bに一致する行は別のファイルへ、それ以外はキャッチオールへ振り分けられます。値は大文字小文字を含め完全一致が必要です。",
       },
       fields: {
         csvPath: { label: "CSVパス", hint: "入力CSVファイルのURLまたはパス。" },
         categoryColumn: {
           label: "カテゴリ列",
-          hint: "行の出力先ファイルを決定する値を持つ列。カテゴリのセットはワークフローで定義されます — どのカテゴリにも一致しない行はキャッチオールファイルへ。",
+          hint: "カテゴリAおよびカテゴリBと比較する列。どちらにも一致しない行はキャッチオールファイルへ。",
+        },
+        valueA: {
+          label: "カテゴリAの値",
+          hint: "カテゴリ列がこの値と一致する行は独自の出力ファイルへ振り分けられます。",
+        },
+        valueB: {
+          label: "カテゴリBの値",
+          hint: "カテゴリ列がこの値と一致する行は独自の出力ファイルへ振り分けられます。",
         },
         outputPrefix: {
           label: "出力プレフィックス",
-          hint: "出力ファイル： <code>{prefix}_&lt;カテゴリ&gt;.csv</code>",
+          hint: "出力ファイル： <code>{prefix}_{valueA}.csv</code>、<code>{prefix}_{valueB}.csv</code>、<code>{prefix}_other.csv</code>",
         },
       },
       alert:

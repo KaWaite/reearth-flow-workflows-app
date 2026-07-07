@@ -39,6 +39,8 @@ export interface ColumnSelectorParams {
 export interface CsvSplitParams {
   csv_path: string;
   category_column: string;
+  value_a: string;
+  value_b: string;
   output_prefix: string;
 }
 

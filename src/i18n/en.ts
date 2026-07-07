@@ -295,11 +295,11 @@ export const en: Translations = {
         concepts: [
           {
             name: "FeatureFilter",
-            desc: "routes rows to named output ports based on a FlowExpr condition; each port maps to a separate CsvWriter — the category values and port count are fixed at workflow build time",
+            desc: "routes rows to named output ports based on a FlowExpr condition; each port maps to a separate CsvWriter — value_a and value_b are passed at trigger time, so the same workflow handles any two-category split",
           },
         ],
         inputShape:
-          "A CSV with a column whose values match the categories configured in the workflow. Rows that do not match any configured category are routed to a catch-all output. The category column must be consistent — misspellings or unexpected values go to the catch-all.",
+          "A CSV with a column whose values include the two categories you specify. Rows matching value_a go to one file, value_b to another, and everything else to a catch-all. Values must match exactly — case-sensitive.",
       },
       fields: {
         csvPath: {
@@ -308,11 +308,19 @@ export const en: Translations = {
         },
         categoryColumn: {
           label: "Category Column",
-          hint: "Column whose values determine which output file each row goes to. The set of categories is defined in the workflow — rows not matching any category go to a catch-all file.",
+          hint: "Column whose values are compared to Category A and Category B. Rows not matching either go to a catch-all file.",
+        },
+        valueA: {
+          label: "Category A Value",
+          hint: "Rows where the category column equals this value go to their own output file.",
+        },
+        valueB: {
+          label: "Category B Value",
+          hint: "Rows where the category column equals this value go to their own output file.",
         },
         outputPrefix: {
           label: "Output Prefix",
-          hint: "Output files: <code>{prefix}_&lt;category&gt;.csv</code>",
+          hint: "Output files: <code>{prefix}_{valueA}.csv</code>, <code>{prefix}_{valueB}.csv</code>, <code>{prefix}_other.csv</code>",
         },
       },
       alert:
