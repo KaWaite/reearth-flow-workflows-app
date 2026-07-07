@@ -11,6 +11,12 @@ const DEFAULTS: ColumnSelectorParams = {
   output_name: 'output',
 };
 
+const EXAMPLE: ColumnSelectorParams = {
+  csv_path: 'https://api.flow.reearth.io/assets/01kwgt5bs7a2yz0k83h0s0d91d.csv',
+  columns_to_remove: 'era,genre',
+  output_name: 'output',
+};
+
 export function ColumnSelectorWorkflow() {
   const [params, setParams] = useState<ColumnSelectorParams>(DEFAULTS);
   const [jobState, setJobState] = useState<JobState>('idle');
@@ -45,6 +51,10 @@ export function ColumnSelectorWorkflow() {
     setJob(null);
     setError(null);
     setParams(DEFAULTS);
+  }
+
+  function handleFillExample() {
+    setParams(EXAMPLE);
   }
 
   const name = params.output_name || 'output';
@@ -83,7 +93,12 @@ export function ColumnSelectorWorkflow() {
 
       {jobState !== 'submitted' && (
         <form className="form-card" onSubmit={handleSubmit}>
-          <h2 className="form-title">{t.common.runWorkflow}</h2>
+          <div className="form-title-row">
+            <h2 className="form-title">{t.common.runWorkflow}</h2>
+            <button type="button" className="btn-example" onClick={handleFillExample}>
+              {t.common.fillExample}
+            </button>
+          </div>
 
           <div className="field">
             <label htmlFor="csv_path">{wt.fields.csvPath.label} <span className="required">*</span></label>
