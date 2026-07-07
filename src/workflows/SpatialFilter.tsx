@@ -29,7 +29,7 @@ const DEFAULTS: SpatialFilterParams = {
 
 const EXAMPLE: SpatialFilterParams = {
   geojson_path: 'https://api.flow.reearth.io/assets/01kwxfff6x89y13tt3vx7e15t8.geojson',
-  min_area_m2: '1000',
+  min_area_m2: '345801',
   output_name: 'filtered',
 };
 
