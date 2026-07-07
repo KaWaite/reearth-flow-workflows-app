@@ -27,6 +27,12 @@ const DEFAULTS: SpatialFilterParams = {
   output_name: 'filtered',
 };
 
+const EXAMPLE: SpatialFilterParams = {
+  geojson_path: 'https://api.flow.reearth.io/assets/01kwxfff6x89y13tt3vx7e15t8.geojson',
+  min_area_m2: '1000',
+  output_name: 'filtered',
+};
+
 export function SpatialFilterWorkflow() {
   const [params, setParams] = useState<SpatialFilterParams>(DEFAULTS);
   const [jobState, setJobState] = useState<JobState>('idle');
@@ -61,6 +67,10 @@ export function SpatialFilterWorkflow() {
     setJob(null);
     setError(null);
     setParams(DEFAULTS);
+  }
+
+  function handleFillExample() {
+    setParams(EXAMPLE);
   }
 
   const areaNum = parseFloat(params.min_area_m2);
@@ -106,7 +116,12 @@ export function SpatialFilterWorkflow() {
 
       {jobState !== 'submitted' && (
         <form className="form-card" onSubmit={handleSubmit}>
-          <h2 className="form-title">{t.common.runWorkflow}</h2>
+          <div className="form-title-row">
+            <h2 className="form-title">{t.common.runWorkflow}</h2>
+            <button type="button" className="btn-example" onClick={handleFillExample}>
+              {t.common.fillExample}
+            </button>
+          </div>
 
           <div className="field">
             <label htmlFor="geojson_path">{wt.fields.geojsonPath.label} <span className="required">*</span></label>

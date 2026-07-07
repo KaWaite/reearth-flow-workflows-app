@@ -10,6 +10,11 @@ const DEFAULTS: CsvToJsonParams = {
   output_name: 'output',
 };
 
+const EXAMPLE: CsvToJsonParams = {
+  csv_path: 'https://api.flow.reearth.io/assets/01kwxfey4a01tk6x2h7wkpxkw4.csv',
+  output_name: 'output',
+};
+
 export function CsvToJsonWorkflow() {
   const [params, setParams] = useState<CsvToJsonParams>(DEFAULTS);
   const [jobState, setJobState] = useState<JobState>('idle');
@@ -44,6 +49,10 @@ export function CsvToJsonWorkflow() {
     setJob(null);
     setError(null);
     setParams(DEFAULTS);
+  }
+
+  function handleFillExample() {
+    setParams(EXAMPLE);
   }
 
   const name = params.output_name || 'output';
@@ -82,7 +91,12 @@ export function CsvToJsonWorkflow() {
 
       {jobState !== 'submitted' && (
         <form className="form-card" onSubmit={handleSubmit}>
-          <h2 className="form-title">{t.common.runWorkflow}</h2>
+          <div className="form-title-row">
+            <h2 className="form-title">{t.common.runWorkflow}</h2>
+            <button type="button" className="btn-example" onClick={handleFillExample}>
+              {t.common.fillExample}
+            </button>
+          </div>
 
           <div className="field">
             <label htmlFor="csv_path">{wt.fields.csvPath.label} <span className="required">*</span></label>
